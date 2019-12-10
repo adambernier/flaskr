@@ -1,17 +1,18 @@
 -- Initialize the database.
 -- Drop any existing data and create empty tables.
+-- AUTOINCREMENT changes to SERIAL 
 
 DROP TABLE IF EXISTS usr;
 DROP TABLE IF EXISTS post;
 
 CREATE TABLE usr (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id SERIAL PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  pass TEXT NOT NULL
 );
 
 CREATE TABLE post (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id SERIAL PRIMARY KEY,
   author_id INTEGER NOT NULL,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
