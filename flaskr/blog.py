@@ -13,11 +13,12 @@ bp = Blueprint('blog', __name__)
 @bp.route('/')
 def index():
     db = get_db()
-    posts = db.execute(
+    db.execute(
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN usr u ON p.author_id = u.id'
         ' ORDER BY created DESC'
-    ).fetchall()
+    )
+    posts = db.fetchall()
     return render_template('blog/index.html', posts=posts)
 
 @bp.route('/create', methods=('GET', 'POST'))
@@ -46,12 +47,13 @@ def create():
     return render_template('blog/create.html')
 
 def get_post(id, check_author=True):
-    post = get_db().execute(
+    get_db().execute(
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN usr u ON p.author_id = u.id'
         ' WHERE p.id = %s',
         (id,)
-    ).fetchone()
+    )
+    post = db.fetchone()
 
     if post is None:
         abort(404, "Post id {0} doesn't exist.".format(id))
@@ -66,13 +68,14 @@ def get_post(id, check_author=True):
 def detail(id):
     post = get_post(id)
     db = get_db()
-    post = db.execute(
+    db.execute(
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p JOIN usr u ON p.author_id = u.id'
         ' WHERE p.id = %s'
         ' ORDER BY created DESC',
         (id,)
-    ).fetchone()
+    )
+    post = db.fetchone()
     return render_template('blog/detail.html', post=post)
     
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))

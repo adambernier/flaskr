@@ -17,13 +17,14 @@ def register():
         db = get_db()
         error = None
 
+        db.execute(
+            'SELECT id FROM usr WHERE username = %s', (username,)
+        )
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif db.execute(
-            'SELECT id FROM usr WHERE username = %s', (username,)
-        ).fetchone() is not None:
+        elif db.fetchone() is not None:
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
@@ -45,9 +46,10 @@ def login():
         password = request.form['password']
         db = get_db()
         error = None
-        user = db.execute(
+        db.execute(
             'SELECT * FROM usr WHERE username = %s', (username,)
-        ).fetchone()
+        )
+        user = db.fetchone()
 
         if user is None:
             error = 'Incorrect username.'
@@ -70,9 +72,10 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
+        get_db().execute(
             'SELECT * FROM usr WHERE id = %s', (user_id,)
-        ).fetchone()
+        )
+        g.user = db.fetchone()
 
 @bp.route('/logout')
 def logout():
