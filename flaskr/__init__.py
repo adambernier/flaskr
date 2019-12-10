@@ -33,7 +33,7 @@ def create_app(test_config=None):
     
     app.config.from_pyfile(os.path.join('.','instance/config.py'),silent=True)
     app.config.from_mapping(
-        SECRET_KEY=app.config.get('SECRET_KEY'),
+        SECRET_KEY=os.environ['SECRET_KEY'],
         #SECRET_KEY='dev',
         DATABASE=psycopg2.connect(
             dbname=dbname,
