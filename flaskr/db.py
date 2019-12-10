@@ -17,13 +17,14 @@ def get_db():
         host = url.hostname
         port = url.port
 
-        g.db = psycopg2.connect(
+        con = psycopg2.connect(
                     dbname=dbname,
                     user=user,
                     password=password,
                     host=host,
                     port=port
                     )
+        g.db = con.cursor()
         #g.db = sqlite3.connect(
         #    current_app.config['DATABASE'],
         #    detect_types=sqlite3.PARSE_DECLTYPES
