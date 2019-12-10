@@ -1,12 +1,10 @@
 -- Initialize the database.
 -- Drop any existing data and create empty tables.
 
-CREATE DATABASE flaskr;
-
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS usr;
 DROP TABLE IF EXISTS post;
 
-CREATE TABLE user (
+CREATE TABLE usr (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL

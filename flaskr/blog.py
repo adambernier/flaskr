@@ -10,20 +10,12 @@ from flaskr.db import get_db
 
 bp = Blueprint('blog', __name__)
 
-def slugify(text,permitted_chars='abcdefghijklmnopqrstuvwxyz0123456789-'):
-    clean_text = text.strip().replace(' ', '-').lower()
-    while '--' in clean_text:
-        clean_text = clean_text.replace('--', '-')
-    ascii_text = normalize('NFKD', clean_text)
-    strict_text = map(lambda x: x if x in permitted_chars else '', ascii_text)
-    return ''.join(strict_text)
-
 @bp.route('/')
 def index():
     db = get_db()
     posts = db.execute(
         'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' FROM post p JOIN usr u ON p.author_id = u.id'
         ' ORDER BY created DESC'
     ).fetchall()
     return render_template('blog/index.html', posts=posts)
@@ -33,7 +25,6 @@ def index():
 def create():
     if request.method == 'POST':
         title = request.form['title']
-        slug = slugify(title)
         body = request.form['body']
         error = None
 
@@ -57,7 +48,7 @@ def create():
 def get_post(id, check_author=True):
     post = get_db().execute(
         'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' FROM post p JOIN usr u ON p.author_id = u.id'
         ' WHERE p.id = ?',
         (id,)
     ).fetchone()
@@ -77,7 +68,7 @@ def detail(id):
     db = get_db()
     post = db.execute(
         'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' FROM post p JOIN usr u ON p.author_id = u.id'
         ' WHERE p.id = ?'
         ' ORDER BY created DESC',
         (id,)

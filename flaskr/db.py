@@ -1,5 +1,6 @@
 import psycopg2
 #import sqlite3
+import urllib.parse as urlparse
 
 import click
 from flask import current_app, g
@@ -8,11 +9,20 @@ from flask.cli import with_appcontext
 
 def get_db():
     if 'db' not in g:
+        url = urlparse.urlparse(os.environ['DATABASE_URL'])
+        dbname = url.path[1:]
+        user = url.username
+        password = url.password
+        host = url.hostname
+        port = url.port
+
         g.db = psycopg2.connect(
-            psycopg2.connect(host=current_app.config.get('DATABASE_HOST'),
-            user=current_app.config.get('DATABASE_USER'),
-            database=current_app.config.get('DATABASE_NAME'),)
-            )
+                    dbname=dbname,
+                    user=user,
+                    password=password,
+                    host=host,
+                    port=port
+                    )
         #g.db = sqlite3.connect(
         #    current_app.config['DATABASE'],
         #    detect_types=sqlite3.PARSE_DECLTYPES

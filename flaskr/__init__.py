@@ -1,6 +1,7 @@
 import os
 
 import psycopg2
+import urllib.parse as urlparse
 
 from flask import Flask
 from flask_misaka import Misaka
@@ -22,14 +23,25 @@ def create_app(test_config=None):
     from . import blog
     app.register_blueprint(blog.bp)
     app.add_url_rule('/', endpoint='index')
-        
+    
+    url = urlparse.urlparse(os.environ['DATABASE_URL'])
+    dbname = url.path[1:]
+    user = url.username
+    password = url.password
+    host = url.hostname
+    port = url.port
+    
     app.config.from_pyfile(os.path.join('.','instance/config.py'),silent=True)
     app.config.from_mapping(
         SECRET_KEY=app.config.get('SECRET_KEY'),
         #SECRET_KEY='dev',
-        DATABASE=psycopg2.connect(host=app.config.get('DATABASE_HOST'),
-                                  user=app.config.get('DATABASE_USER'),
-                                  database=app.config.get('DATABASE_NAME'),)
+        DATABASE=psycopg2.connect(
+            dbname=dbname,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+            )
         #DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     )
 
