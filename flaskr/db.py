@@ -4,6 +4,7 @@ import urllib.parse as urlparse
 
 import click
 import psycopg2
+import pyscopg2.extras 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from flask import current_app, g
 from flask.cli import with_appcontext
@@ -26,7 +27,7 @@ def get_db():
                     port=port
                     )
         con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        g.db = con.cursor()
+        g.db = con.cursor(cursor_factory = psycopg2.extras.DictCursor)
         #g.db = sqlite3.connect(
         #    current_app.config['DATABASE'],
         #    detect_types=sqlite3.PARSE_DECLTYPES
