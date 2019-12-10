@@ -1,4 +1,5 @@
-import sqlite3
+import psycopg2
+#import sqlite3
 
 import click
 from flask import current_app, g
@@ -7,11 +8,16 @@ from flask.cli import with_appcontext
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row
+        g.db = psycopg2.connect(
+            psycopg2.connect(host=current_app.config.get('DATABASE_HOST'),
+            user=current_app.config.get('DATABASE_USER'),
+            database=current_app.config.get('DATABASE_NAME'),)
+            )
+        #g.db = sqlite3.connect(
+        #    current_app.config['DATABASE'],
+        #    detect_types=sqlite3.PARSE_DECLTYPES
+        #)
+        #g.db.row_factory = sqlite3.Row
 
     return g.db
 
@@ -24,9 +30,10 @@ def close_db(e=None):
 
 def init_db():
     db = get_db()
-
+    
     with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+        db.execute(f.read().decode('utf8'))
+        #db.executescript(f.read().decode('utf8'))
 
 
 @click.command('init-db')

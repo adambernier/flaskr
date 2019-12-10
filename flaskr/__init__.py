@@ -1,4 +1,6 @@
-import configparser, os
+import os
+
+import psycopg2
 
 from flask import Flask
 from flask_misaka import Misaka
@@ -20,15 +22,15 @@ def create_app(test_config=None):
     from . import blog
     app.register_blueprint(blog.bp)
     app.add_url_rule('/', endpoint='index')
-
-    #cfg = configparser.ConfigParser()
-    #cfg.read('config.txt')
-    #test_config = {'SECRET_KEY':cfg.get('deploy','SECRET_KEY'),
-    #    'DATABASE':os.path.join(app.instance_path, 'flaskr.sqlite'),}
         
+    app.config.from_pyfile(os.path.join('.','instance/config.py'),silent=True)
     app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        SECRET_KEY=app.config.get('SECRET_KEY'),
+        #SECRET_KEY='dev',
+        DATABASE=psycopg2.connect(host=app.config.get('DATABASE_HOST'),
+                                  user=app.config.get('DATABASE_USER'),
+                                  database=app.config.get('DATABASE_NAME'),)
+        #DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     )
 
     if test_config is None:
