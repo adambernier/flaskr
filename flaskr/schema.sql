@@ -1,6 +1,8 @@
 -- Initialize the database.
 -- Drop any existing data and create empty tables.
 
+CREATE DATABASE flaskr;
+
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS post;
 
