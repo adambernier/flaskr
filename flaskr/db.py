@@ -4,7 +4,7 @@ import urllib.parse as urlparse
 
 import click
 import psycopg2
-import pyscopg2.extras 
+import psycopg2.extras 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from flask import current_app, g
 from flask.cli import with_appcontext
