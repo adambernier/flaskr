@@ -1,8 +1,9 @@
-import psycopg2
+import os
 #import sqlite3
 import urllib.parse as urlparse
 
 import click
+import psycopg2
 from flask import current_app, g
 from flask.cli import with_appcontext
 
