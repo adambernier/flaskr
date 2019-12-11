@@ -8,3 +8,5 @@ Jinja2==2.10.3
 MarkupSafe==1.0
 misaka==2.1.1
 Werkzeug==0.16.0
+pygments==2.5.2
+markdown==3.1.1
