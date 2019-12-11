@@ -2,8 +2,8 @@
 -- Drop any existing data and create empty tables.
 -- AUTOINCREMENT changes to SERIAL 
 
-DROP TABLE IF EXISTS usr;
-DROP TABLE IF EXISTS post;
+DROP TABLE IF EXISTS usr CASCADE;
+DROP TABLE IF EXISTS post CASCADE;
 
 CREATE TABLE usr (
   id SERIAL PRIMARY KEY,

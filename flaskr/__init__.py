@@ -7,7 +7,7 @@ from flask import Flask
 from flask_misaka import Misaka
 
 def create_app(test_config=None):
-    md = Misaka(fenced_code=True)
+    md = Misaka()
     
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)

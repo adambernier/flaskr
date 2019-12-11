@@ -11,8 +11,8 @@ def test_index(client, auth):
     auth.login()
     response = client.get("/")
     assert b"test title" in response.data
-    assert b"by test on 2018-01-01" in response.data
-    assert b"test\nbody" in response.data
+    assert b"by test on 2019-01-01" in response.data
+    assert b"test body" in response.data
     assert b'href="/1/update"' in response.data
 
 
@@ -27,7 +27,6 @@ def test_author_required(app, client, auth):
     with app.app_context():
         db = get_db()
         db.execute("UPDATE post SET author_id = 2 WHERE id = 1")
-        db.commit()
 
     auth.login()
     # current user can't modify other user's post
@@ -50,7 +49,8 @@ def test_create(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        count = db.execute("SELECT COUNT(id) FROM post").fetchone()[0]
+        db.execute("SELECT COUNT(id) as cnt FROM post")
+        count = db.fetchone()['cnt']
         assert count == 2
 
 
@@ -61,7 +61,8 @@ def test_update(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        post = db.execute("SELECT * FROM post WHERE id = 1").fetchone()
+        db.execute("SELECT * FROM post WHERE id = 1")
+        post = db.fetchone()
         assert post["title"] == "updated"
 
 
@@ -79,5 +80,6 @@ def test_delete(client, auth, app):
 
     with app.app_context():
         db = get_db()
-        post = db.execute("SELECT * FROM post WHERE id = 1").fetchone()
+        db.execute("SELECT * FROM post WHERE id = 1")
+        post = db.fetchone()
         assert post is None
