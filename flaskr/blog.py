@@ -53,7 +53,7 @@ def get_post(id, check_author=True):
         ' WHERE p.id = %s',
         (id,)
     )
-    post = db.fetchone()
+    post = get_db().fetchone()
 
     if post is None:
         abort(404, "Post id {0} doesn't exist.".format(id))
@@ -111,5 +111,5 @@ def delete(id):
     get_post(id)
     db = get_db()
     db.execute('DELETE FROM post WHERE id = %s', (id,))
-    db.commit()
+    #db.commit()
     return redirect(url_for('blog.index'))
