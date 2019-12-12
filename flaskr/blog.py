@@ -14,6 +14,8 @@ bp = Blueprint('blog', __name__)
 @bp.route('/')
 @bp.route('/page/<int:page>')
 def index():
+    if not page:
+        page = 1
     PAGINATION_SIZE = 3
     db = get_db()
     db.execute(
