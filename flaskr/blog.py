@@ -10,12 +10,10 @@ from flaskr.db import get_db
 
 bp = Blueprint('blog', __name__)
 
-#@bp.route('/', defaults={'page':1})
-@bp.route('/')
-@bp.route('/page/<int:page>')
+#@bp.route('/')
+@bp.route('/', defaults={'page':1})
+@bp.route('/<int:page>')
 def index():
-    if not page:
-        page = 1
     PAGINATION_SIZE = 3
     db = get_db()
     db.execute(
