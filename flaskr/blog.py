@@ -10,24 +10,35 @@ from flaskr.db import get_db
 
 bp = Blueprint('blog', __name__)
 
-#@bp.route('/')
-@bp.route('/', defaults={'page':1})
-@bp.route('/<int:page>')
-def index():
+@bp.route('/')
+@bp.route('/',defaults={'page':1})
+@bp.route('/page/<int:page>')
+def index(page=None):
+    if not page:
+        page = 1
     PAGINATION_SIZE = 3
     db = get_db()
+    db.execute(
+        'SELECT count(p.id) row_count FROM post p'
+        )
+    count = db.fetchone()['row_count']
+    page_from = count - ((page - 1) * PAGINATION_SIZE)
     db.execute(
         'SELECT p.id, title, body, created, author_id, username'
         ' FROM post p'
         ' JOIN usr u ON p.author_id = u.id'
-        ' WHERE p.id <= ?'
+        ' WHERE p.id <= %s'
         ' ORDER BY created DESC'
-        ' FETCH FIRST ? ROWS ONLY;'
-        (PAGINATION_SIZE*page,PAGINATION_SIZE,)
+        ' FETCH FIRST %s ROWS ONLY;',
+        (page_from,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
+    if posts[-1]['id'] == 1:
+        last_post = True
+    else:
+        last_post = False
     return render_template('blog/index.html',posts=posts,page=page,
-        PAGINATION_SIZE=PAGINATION_SIZE)
+        PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
