@@ -10,8 +10,8 @@ from flaskr.db import get_db
 
 bp = Blueprint('blog', __name__)
 
-#@bp.route('/')
-@bp.route('/', defaults={'page':1})
+#@bp.route('/', defaults={'page':1})
+@bp.route('/')
 @bp.route('/page/<int:page>')
 def index():
     PAGINATION_SIZE = 3
