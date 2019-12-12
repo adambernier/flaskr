@@ -26,7 +26,7 @@ def index():
         (PAGINATION_SIZE*page,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
-    return render_template('blog/index.html',posts=posts,page=page
+    return render_template('blog/index.html',posts=posts,page=page,
         PAGINATION_SIZE=PAGINATION_SIZE)
 
 @bp.route('/create', methods=('GET', 'POST'))
