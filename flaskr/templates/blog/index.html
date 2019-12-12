@@ -25,4 +25,11 @@
       <hr>
     {% endif %}
   {% endfor %}
+  
+  {% if page > 1 %}
+    <a href="/page/{{ page - 1 }}" style="float:left;">&lt;&lt; Newer</a>
+  {% endif %}
+  {% if posts|length == PAGINATION_SIZE %}
+    <a href="/page/{{ page + 1 }}" style="float:right;">Older &gt;&gt;</a>
+  {% endif %}
 {% endblock %}

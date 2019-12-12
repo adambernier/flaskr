@@ -14,14 +14,20 @@ bp = Blueprint('blog', __name__)
 @bp.route('/', defaults={'page':1})
 @bp.route('/page/<int:page>')
 def index():
+    PAGINATION_SIZE = 3
     db = get_db()
     db.execute(
         'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN usr u ON p.author_id = u.id'
-        ' ORDER BY created DESC;'
+        ' FROM post p'
+        ' JOIN usr u ON p.author_id = u.id'
+        ' WHERE p.id <= ?'
+        ' ORDER BY created DESC'
+        ' FETCH FIRST ? ROWS ONLY;'
+        (PAGINATION_SIZE*page,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
-    return render_template('blog/index.html', posts=posts)
+    return render_template('blog/index.html',posts=posts,page=page
+        PAGINATION_SIZE=PAGINATION_SIZE)
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
@@ -41,7 +47,7 @@ def create():
             db.execute(
                 'INSERT INTO post (title, body, author_id)'
                 ' VALUES (%s,%s,%s);',
-                (title, body, g.user['id'])
+                (title,body,g.user['id'],)
             )
             #db.commit()
             return redirect(url_for('blog.index'))
