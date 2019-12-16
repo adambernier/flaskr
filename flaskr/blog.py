@@ -3,8 +3,6 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 
-from unicodedata import normalize 
-
 from flaskr.auth import login_required
 from flaskr.db import get_db
 
@@ -64,7 +62,6 @@ def create():
                 ' VALUES (%s,%s,%s);',
                 (title,body,g.user['id'],)
             )
-            #db.commit()
             return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html')

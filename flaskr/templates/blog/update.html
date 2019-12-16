@@ -5,6 +5,44 @@
 {% endblock %}
 
 {% block content %}
+
+    <form method="post">
+      <div class='form-group'>
+        <label for='title'>Title</label>
+        <input type='text' class='form-control' id='title' name='title' value="{{ request.form['title'] or post['title'] }}" />
+      </div>
+      <div class='form-group'>
+        {# including the SummerNote control on the form, from CDN #}
+        <label for='summernote'>Content</label>
+        <textarea id="summernote" name="body" class='form-control'>{{ request.form['body'] or post['body'] }}</textarea>
+        <script>
+        $('#summernote').summernote({
+          placeholder: 'Enter some content here.',
+          tabsize: 2,
+          height: 200,
+          prettifyHtml:false,
+          toolbar:[
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+            ['highlight', ['highlight']],
+            ],
+            lang:'en-US'
+        });
+      </script>
+      </div>
+      <div class='form-group'>
+        {# note we use same name for Save and Cancel buttons, but a different value #}
+        <button type="submit" name="submit" value="submit">Save</button>
+        <button type="cancel" name="submit" value="cancel">Cancel</button>
+      </div>
+    </form>
+<!--
   <form method="post">
     <label for="title">Title</label>
     <input name="title" id="title" value="{{ request.form['title'] or post['title'] }}" required>
@@ -12,6 +50,7 @@
     <textarea name="body" id="body">{{ request.form['body'] or post['body'] }}</textarea>
     <input type="submit" value="Save">
   </form>
+-->
   <hr>
   <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">

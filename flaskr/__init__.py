@@ -50,6 +50,13 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
+    
+    # images 
+    UPLOAD_DIR = os.path.join(app.instance_path,'uploads')
+    os.makedirs(UPLOAD_DIR,exist_ok=True)
+    ALLOWED_EXTENSIONS = set(['png', 'jpg'])
+    app.config['UPLOAD_DIR'] = UPLOAD_DIR
+    app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024
 
     # ensure the instance folder exists
     try:
