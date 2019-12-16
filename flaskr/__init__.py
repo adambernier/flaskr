@@ -12,7 +12,6 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issue
-    app.config["CACHE_TYPE"] = "null" # cache issue
     
     md.init_app(app)
     
@@ -72,5 +71,10 @@ def create_app(test_config=None):
         return 'Hello, World!'
 
     return app
+    
+    @app.after_request
+    def add_header(response):
+        response.cache_control.max_age = 0
+        return response
 
 app = create_app()
