@@ -70,12 +70,12 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
-    return app
-    
     @app.after_request
     def add_header(response):
         response.cache_control.max_age = 0
         response.cache_control.public = True
         return response
+
+    return app
 
 app = create_app()
