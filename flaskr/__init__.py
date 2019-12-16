@@ -11,7 +11,8 @@ def create_app(test_config=None):
     
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issues 
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issue
+    app.config["CACHE_TYPE"] = "null" # cache issue
     
     #md.init_app(app)
     
