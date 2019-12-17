@@ -1,6 +1,8 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
+from psycopg2 import errors 
+from slugify import slugify
 from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
@@ -22,16 +24,34 @@ def index(page=None):
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
     page_from = count - ((page - 1) * PAGINATION_SIZE)
-    db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p'
-        ' JOIN usr u ON p.author_id = u.id'
-        ' WHERE p.id <= %s'
-        ' ORDER BY created DESC'
-        ' FETCH FIRST %s ROWS ONLY;',
+    db.execute("""
+        SELECT p.id, title, body, created, author_id, username, pt.tags
+         FROM post p
+         JOIN usr u ON p.author_id = u.id
+         LEFT JOIN (
+            SELECT min(pt.post_id) post_id, string_agg(t.title, ' ') tags
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+         ) pt
+         ON pt.post_id = p.id
+         WHERE p.id <= %s
+         ORDER BY created DESC
+         FETCH FIRST %s ROWS ONLY;""",
         (page_from,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
+    #if posts:
+    #    post_ids = [post['id'] for post in posts]
+    #    post_id_placeholders = ",".join(["%s"]*len(post_ids))
+    #    tag_qry = '''SELECT pt.post_id, t.title, t.slug 
+    #                 FROM post_tag pt
+    #                 JOIN tag t ON pt.tag_id = t.id
+    #                 WHERE pt.post_id in ({});'''.format(post_id_placeholders)
+    #    db.execute(tag_qry,post_ids)
+    #    tags = db.fetchall()
+    #else:
+    #    tags = None
     try:
         if posts[-1]['id'] == min_id:
             last_post = True
@@ -48,6 +68,9 @@ def create():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        tags = request.form['tags']
+        tags = tags.split(' ') # expand to allow other delimiters?
+        tag_slugs = [slugify(tag) for tag in tags]
         error = None
 
         if not title:
@@ -59,8 +82,29 @@ def create():
             db = get_db()
             db.execute(
                 'INSERT INTO post (title, body, author_id)'
-                ' VALUES (%s,%s,%s);',
+                ' VALUES (%s,%s,%s) RETURNING id;',
                 (title,body,g.user['id'],)
+            )
+            post_id = db.fetchone()['id']
+            tag_ids = []
+            for tag,tag_slug in zip(tags,tag_slugs):
+                try:                 
+                    db.execute(
+                        'INSERT INTO tag (title, slug)'
+                        ' VALUES (%s,%s) RETURNING id;',
+                        (tag, tag_slug,)
+                    )
+                    tag_ids.append(db.fetchone()['id'])
+                except errors.UniqueViolation:
+                    db.execute(
+                        'SELECT id FROM tag WHERE slug = %s;',
+                        (tag_slug,)
+                    )
+                    tag_ids.append(db.fetchone()['id'])
+            db.executemany(
+                'INSERT INTO post_tag (post_id, tag_id)'
+                ' VALUES (%s,%s);',
+                list(zip([post_id]*len(tag_ids),tag_ids))
             )
             return redirect(url_for('blog.index'))
 
@@ -88,15 +132,27 @@ def get_post(id, check_author=True):
 def detail(id):
     post = get_post(id)
     db = get_db()
-    db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN usr u ON p.author_id = u.id'
-        ' WHERE p.id = %s'
-        ' ORDER BY created DESC;',
+    db.execute("""
+        SELECT p.id, title, body, created, author_id, username, pt.tags
+         FROM post p JOIN usr u ON p.author_id = u.id
+         LEFT JOIN (
+             SELECT min(pt.post_id) post_id, string_agg(t.title, ' ') tags
+             FROM tag t
+             JOIN post_tag pt
+             ON pt.tag_id = t.id
+         ) pt
+         ON pt.post_id = p.id
+         WHERE p.id = %s
+         ORDER BY created DESC;""",
         (id,)
     )
     post = db.fetchone()
-    return render_template('blog/detail.html', post=post)
+    db.execute('SELECT pt.post_id, t.title, t.slug'
+               ' FROM post_tag pt' 
+               ' JOIN tag t ON pt.tag_id = t.id'
+               ' WHERE pt.post_id = %s',(post['id'],))
+    tags = db.fetchall()
+    return render_template('blog/detail.html', post=post, tags=tags)
     
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
@@ -106,6 +162,7 @@ def update(id):
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        tags = request.form['tags']
         error = None
 
         if not title:
@@ -130,6 +187,7 @@ def update(id):
 def delete(id):
     get_post(id)
     db = get_db()
+    db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
     db.execute('DELETE FROM post WHERE id = %s;', (id,))
     #db.commit()
     return redirect(url_for('blog.index'))

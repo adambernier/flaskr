@@ -19,5 +19,8 @@
       {% endif %}
     </header>
     <p class="body">{{ post['body']|markdown }}</p>
+    {% if post['tags'] %}
+      <div>{{ post['tags'] }}</div>
+    {% endif %}
   </article>
 {% endblock %}
