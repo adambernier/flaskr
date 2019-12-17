@@ -29,10 +29,11 @@ def index(page=None):
          FROM post p
          JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
-            SELECT min(pt.post_id) post_id, string_agg(t.title, ' ') tags
+            SELECT pt.post_id, string_agg(t.title, ' ') tags
             FROM tag t
                 JOIN post_tag pt
                 ON pt.tag_id = t.id
+            GROUP BY pt.post_id
          ) pt
          ON pt.post_id = p.id
          WHERE p.id <= %s
@@ -41,17 +42,6 @@ def index(page=None):
         (page_from,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
-    #if posts:
-    #    post_ids = [post['id'] for post in posts]
-    #    post_id_placeholders = ",".join(["%s"]*len(post_ids))
-    #    tag_qry = '''SELECT pt.post_id, t.title, t.slug 
-    #                 FROM post_tag pt
-    #                 JOIN tag t ON pt.tag_id = t.id
-    #                 WHERE pt.post_id in ({});'''.format(post_id_placeholders)
-    #    db.execute(tag_qry,post_ids)
-    #    tags = db.fetchall()
-    #else:
-    #    tags = None
     try:
         if posts[-1]['id'] == min_id:
             last_post = True
@@ -101,6 +91,7 @@ def create():
                         (tag_slug,)
                     )
                     tag_ids.append(db.fetchone()['id'])
+            print(tag_ids)
             db.executemany(
                 'INSERT INTO post_tag (post_id, tag_id)'
                 ' VALUES (%s,%s);',
