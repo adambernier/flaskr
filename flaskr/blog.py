@@ -190,7 +190,8 @@ def tag(page=None,tag_slug=None):
     count, min_id = result['row_count'], result['min_id']
     page_from = count - ((page - 1) * PAGINATION_SIZE)
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, pt.tags
+        SELECT p.id, title, body, created, author_id, username, 
+               pt.tags, pt_addl.addl_tags
          FROM post p
          JOIN usr u ON p.author_id = u.id
          JOIN (
@@ -202,12 +203,23 @@ def tag(page=None,tag_slug=None):
             GROUP BY pt.post_id
          ) pt
          ON pt.post_id = p.id
+         LEFT JOIN (
+            SELECT pt.post_id, string_agg(t.title, ' ') addl_tags
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            WHERE t.slug <> %s
+            GROUP BY pt.post_id
+         ) pt_addl
+         ON pt_addl.post_id = p.id
          WHERE p.id <= %s
          ORDER BY created DESC
          FETCH FIRST %s ROWS ONLY;""",
-        (tag_slug,page_from,PAGINATION_SIZE,)
+        (tag_slug,tag_slug,page_from,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
+    for post in posts:
+        print(post['addl_tags'].split(' '))
     try:
         if posts[-1]['id'] == min_id:
             last_post = True

@@ -26,6 +26,12 @@
           <a href="{{ url_for('blog.tag', page=1, tag_slug=tag) }}">{{ tag }}</a>
         {% endfor %}
       {% endif %}
+      {% if post['addl_tags'] %}
+        {% set addl_tag_list = post['addl_tags'].split(' ') %}
+        {% for addl_tag in addl_tag_list %}
+          <a href="{{ url_for('blog.tag', page=1, tag_slug=addl_tag) }}">{{ addl_tag }}</a>
+        {% endfor %}
+      {% endif %}
     </article>
     {% if not loop.last %}
       <hr>
