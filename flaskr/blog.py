@@ -127,10 +127,11 @@ def detail(id):
         SELECT p.id, title, body, created, author_id, username, pt.tags
          FROM post p JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
-             SELECT min(pt.post_id) post_id, string_agg(t.title, ' ') tags
+             SELECT pt.post_id, string_agg(t.title, ' ') tags
              FROM tag t
              JOIN post_tag pt
              ON pt.tag_id = t.id
+             GROUP BY pt.post_id 
          ) pt
          ON pt.post_id = p.id
          WHERE p.id = %s
@@ -138,12 +139,8 @@ def detail(id):
         (id,)
     )
     post = db.fetchone()
-    db.execute('SELECT pt.post_id, t.title, t.slug'
-               ' FROM post_tag pt' 
-               ' JOIN tag t ON pt.tag_id = t.id'
-               ' WHERE pt.post_id = %s',(post['id'],))
-    tags = db.fetchall()
-    return render_template('blog/detail.html', post=post, tags=tags)
+    print(post)
+    return render_template('blog/detail.html', post=post)
     
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
