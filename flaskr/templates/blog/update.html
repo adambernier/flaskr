@@ -38,7 +38,7 @@
       </div>
       <div class='form-group'>
         <label for='tags'>Tags</label>
-        <input type='text' class='form-control' id='tags' name='tags' value="{{ request.form['tags'] }}" />
+        <input type='text' class='form-control' id='tags' name='tags' value="{{ request.form['tags'] or post['tags'] }}" />
       </div>
       <div class='form-group'>
         {# note we use same name for Save and Cancel buttons, but a different value #}

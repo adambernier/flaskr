@@ -102,10 +102,18 @@ def create():
     return render_template('blog/create.html')
 
 def get_post(id, check_author=True):
-    get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN usr u ON p.author_id = u.id'
-        ' WHERE p.id = %s;',
+    get_db().execute("""
+        SELECT p.id, title, body, created, author_id, username, pt.tags
+         FROM post p JOIN usr u ON p.author_id = u.id
+         LEFT JOIN (
+            SELECT pt.post_id, string_agg(t.title, ' ') tags
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            GROUP BY pt.post_id
+         ) pt
+         ON pt.post_id = p.id
+         WHERE p.id = %s;""",
         (id,)
     )
     post = get_db().fetchone()
@@ -165,7 +173,6 @@ def update(id):
                 ' WHERE id = %s;',
                 (title, body, id)
             )
-            #db.commit()
             return redirect(url_for('blog.index'))
 
     return render_template('blog/update.html', post=post)
