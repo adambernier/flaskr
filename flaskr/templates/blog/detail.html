@@ -18,7 +18,9 @@
         <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
       {% endif %}
     </header>
-    <p class="body">{{ post['body']|markdown }}</p>
+    {{ post['body']|markdown }}
+    <p><button id="click-btn" data-postid={{ post['id'] }}>Say thanks!</button></p>
+    <p>Post thanked {{ thank_count }} time(s).</p>
     {% if post['tags'] %}
       {% set tag_list = post['tags'].split(' ') %}
       {% for tag in tag_list %}
@@ -26,4 +28,27 @@
       {% endfor %}
     {% endif %}
   </article>
+
+  {% block javascript %}
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $("#click-btn").click(function() {
+            $.ajax({
+                url: "{{ url_for('blog.thank', id=post['id']) }}",
+                method: "POST",
+                contentType: "application/json;charset=UTF-8",
+                dataType: "json",
+                data : {'postid': $('#click-btn').data('data-postid')},
+                success: function(response) {
+                    console.log(response);    
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+    });
+    </script>
+  {% endblock %}
+
 {% endblock %}

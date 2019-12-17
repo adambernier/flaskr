@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <!-- include libraries(jQuery, bootstrap) -->
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script> 
 <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script> 
 
 <!-- include summernote css/js -->
@@ -18,8 +18,9 @@
 <script>hljs.initHighlightingOnLoad();</script>-->
 <title>{% block title %}{% endblock %} - Flaskr Experimentation</title>
 </head>
+<body>
 <nav>
-  <h1>Flaskr</h1>
+  <h1>Flaskr Experimentation</h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
@@ -39,4 +40,4 @@
   {% endfor %}
   {% block content %}{% endblock %}
 </section>
-
+</body>

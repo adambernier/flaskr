@@ -1,9 +1,9 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, json, redirect, render_template, request, url_for
 )
 from psycopg2 import errors 
 from slugify import slugify
-from werkzeug.exceptions import abort
+from werkzeug.exceptions import abort, BadRequestKeyError
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
@@ -71,9 +71,9 @@ def create():
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (%s,%s,%s) RETURNING id;',
-                (title,body,g.user['id'],)
+                'INSERT INTO post (title, body, author_id, thank_count)'
+                ' VALUES (%s,%s,%s,%s) RETURNING id;',
+                (title,body,g.user['id'],0)
             )
             post_id = db.fetchone()['id']
             tag_ids = []
@@ -91,7 +91,6 @@ def create():
                         (tag_slug,)
                     )
                     tag_ids.append(db.fetchone()['id'])
-            print(tag_ids)
             db.executemany(
                 'INSERT INTO post_tag (post_id, tag_id)'
                 ' VALUES (%s,%s);',
@@ -103,7 +102,8 @@ def create():
 
 def get_post(id, check_author=True):
     get_db().execute("""
-        SELECT p.id, title, body, created, author_id, username, pt.tags
+        SELECT p.id, title, body, created, author_id, username, 
+            thank_count, pt.tags
          FROM post p JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
             SELECT pt.post_id, string_agg(t.title, ' ') tags
@@ -126,29 +126,31 @@ def get_post(id, check_author=True):
 
     return post
     
+@bp.route('/<int:id>/thank', methods=('POST',))
+def thank(id):
+    if request.method == "POST":
+        db = get_db()
+        db.execute('''UPDATE post 
+                      SET thank_count = thank_count + 1
+                      WHERE id = %s;''',(id,))
+        if db.rowcount == 1:
+            db.execute('select thank_count from post where id = %s;',(id,))
+            thank_count = db.fetchone()['thank_count']
+            return json.dumps({'status': 'success', 'thank_count': thank_count})
+        else:
+            return json.dumps({'status': 'record not updated'})
+        return redirect(url_for('blog.detail'))
+    
 @bp.route('/<int:id>/detail',methods=('GET',))
 @login_required
 def detail(id):
     post = get_post(id)
-    db = get_db()
-    db.execute("""
-        SELECT p.id, title, body, created, author_id, username, pt.tags
-         FROM post p JOIN usr u ON p.author_id = u.id
-         LEFT JOIN (
-             SELECT pt.post_id, string_agg(t.title, ' ') tags
-             FROM tag t
-             JOIN post_tag pt
-             ON pt.tag_id = t.id
-             GROUP BY pt.post_id 
-         ) pt
-         ON pt.post_id = p.id
-         WHERE p.id = %s
-         ORDER BY created DESC;""",
-        (id,)
-    )
-    post = db.fetchone()
-    print(post)
-    return render_template('blog/detail.html', post=post)
+    try:
+        thank_count = request.args['thank_count']
+    except BadRequestKeyError:
+        thank_count = post['thank_count']
+    print(thank_count)
+    return render_template('blog/detail.html', post=post, thank_count=thank_count)
     
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
@@ -218,8 +220,6 @@ def tag(page=None,tag_slug=None):
         (tag_slug,tag_slug,page_from,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
-    for post in posts:
-        print(post['addl_tags'].split(' '))
     try:
         if posts[-1]['id'] == min_id:
             last_post = True
