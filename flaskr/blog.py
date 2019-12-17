@@ -176,6 +176,47 @@ def update(id):
             return redirect(url_for('blog.index'))
 
     return render_template('blog/update.html', post=post)
+    
+@bp.route('/tag/<tag_slug>/page/<int:page>')
+def tag(page=None,tag_slug=None):
+    if not page:
+        page = 1
+    PAGINATION_SIZE = 3
+    db = get_db()
+    db.execute(
+        'SELECT count(p.id) row_count, min(p.id) min_id FROM post p'
+        )
+    result = db.fetchone()
+    count, min_id = result['row_count'], result['min_id']
+    page_from = count - ((page - 1) * PAGINATION_SIZE)
+    db.execute("""
+        SELECT p.id, title, body, created, author_id, username, pt.tags
+         FROM post p
+         JOIN usr u ON p.author_id = u.id
+         JOIN (
+            SELECT pt.post_id, string_agg(t.title, ' ') tags
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            WHERE t.slug = %s
+            GROUP BY pt.post_id
+         ) pt
+         ON pt.post_id = p.id
+         WHERE p.id <= %s
+         ORDER BY created DESC
+         FETCH FIRST %s ROWS ONLY;""",
+        (tag_slug,page_from,PAGINATION_SIZE,)
+    )
+    posts = db.fetchall()
+    try:
+        if posts[-1]['id'] == min_id:
+            last_post = True
+        else:
+            last_post = False
+    except IndexError:
+        last_post = True
+    return render_template('blog/index.html',posts=posts,page=page,
+        PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required

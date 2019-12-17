@@ -20,7 +20,10 @@
     </header>
     <p class="body">{{ post['body']|markdown }}</p>
     {% if post['tags'] %}
-      <div>{{ post['tags'] }}</div>
+      {% set tag_list = post['tags'].split(' ') %}
+      {% for tag in tag_list %}
+        <a href="{{ url_for('blog.tag', page=1, tag_slug=tag) }}">{{ tag }}</a>
+      {% endfor %}
     {% endif %}
   </article>
 {% endblock %}
