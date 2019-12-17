@@ -10,4 +10,4 @@ misaka==2.1.1
 Werkzeug==0.16.0
 pygments==2.5.2
 markdown==3.1.1
-slugify==0.0.1
+python-slugify==4.0.0
