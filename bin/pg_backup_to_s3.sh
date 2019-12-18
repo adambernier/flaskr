@@ -31,7 +31,7 @@ BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
 
 DATE=`date -R -u`
 
-S3_PATH="/${S3_BUCKET_NAME}/${BACKUP_FILE_NAME}"
+S3_PATH="/${S3_BUCKET}/${BACKUP_FILE_NAME}"
 
 # Generate S3 signature needed
 # to upload file to the bucket
@@ -43,7 +43,7 @@ S3_SIGNATURE=`echo -en ${S3_STRING} | openssl sha1 -hmac ${S3_SECRET} -binary | 
 # the signature auth header
 
 curl -X PUT -T "/tmp/pg_backup.dump.gz.gpg" \
-  -H "Host: ${S3_BUCKET_NAME}.s3-us-east-2.amazonaws.com" \
+  -H "Host: ${S3_BUCKET}.s3-us-east-2.amazonaws.com" \
   -H "Date: ${DATE}" \
   -H "Content-Type: application/octet-stream" \
   -H "Authorization: AWS ${S3_KEY}:${S3_SIGNATURE}" \
