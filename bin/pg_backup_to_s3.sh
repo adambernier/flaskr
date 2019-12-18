@@ -47,7 +47,7 @@ curl -X PUT -T "/tmp/pg_backup.dump.gz.gpg" \
   -H "Date: ${DATE}" \
   -H "Content-Type: application/octet-stream" \
   -H "Authorization: AWS ${S3_KEY}:${S3_SIGNATURE}" \
-  https://${S3_BUCKET_NAME}.s3-us-east-2.amazonaws.com/${BACKUP_FILE_NAME}
+  https://${S3_BUCKET}.s3-us-east-2.amazonaws.com/${BACKUP_FILE_NAME}
 
 # Remove the encrypted backup file
 
