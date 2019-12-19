@@ -167,4 +167,4 @@ curl -s -L --proto-redir =https -X "${httpReq}" -T "${fileLocal}" \
 # Remove the encrypted backup file
 #rm /tmp/pg_backup.dump.gz.gpg
 #rm "/tmp/${BACKUP_FILE_NAME}"
-rm BACKUP_FILE_NAME
+rm $BACKUP_FILE_NAME
