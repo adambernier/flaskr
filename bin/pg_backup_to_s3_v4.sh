@@ -22,7 +22,7 @@ BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
 
 mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
 
-fileLocal="${1:-BACKUP_FILE_NAME}"
+fileLocal="${1:-/tmp/${BACKUP_FILE_NAME}}"
 #fileLocal="/tmp/${BACKUP_FILE_NAME}"
 bucket="${2:-mechanical-meat-database-backup}"
 region="${3:-}"
