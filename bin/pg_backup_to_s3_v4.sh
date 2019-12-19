@@ -115,7 +115,7 @@ fi
 
 echo "${awsAccess}"
 echo "${awsSecret}"
-echo "Uploading" "${fileLocal}" "->" "${bucket}" "${region}" "${storageClass}"
+echo "Uploading" "${fileLocal}" "->" "${S3_BUCKET}" "${region}" "${storageClass}"
 echo "| $(uname) | $(m_openssl version) | $(m_sed --version | head -1) |"
 
 # Initialize helper variables
@@ -152,7 +152,7 @@ ${httpReq}
 /${fileRemote}
 
 content-type:${contentType}
-host:${bucket}${baseUrl}
+host:${S3_BUCKET}${baseUrl}
 x-amz-content-sha256:${payloadHash}
 x-amz-date:${dateValueL}
 x-amz-server-side-encryption:AES256
@@ -181,7 +181,7 @@ signature=$(awsStringSign4 "${awsSecret}" "${dateValueS}" "${region}" "${service
 
 curl -s -L --proto-redir =https -X "${httpReq}" -T "${fileLocal}" \
   -H "Content-Type: ${contentType}" \
-  -H "Host: ${bucket}${baseUrl}" \
+  -H "Host: ${S3_BUCKET}${baseUrl}" \
   -H "X-Amz-Content-SHA256: ${payloadHash}" \
   -H "X-Amz-Date: ${dateValueL}" \
   -H "X-Amz-Server-Side-Encryption: AES256" \
