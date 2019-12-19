@@ -113,6 +113,8 @@ if [ -z "${region}" ]; then
   region="${awsRegion}"
 fi
 
+echo "${awsAccess}"
+echo "${awsSecret}"
 echo "Uploading" "${fileLocal}" "->" "${bucket}" "${region}" "${storageClass}"
 echo "| $(uname) | $(m_openssl version) | $(m_sed --version | head -1) |"
 
