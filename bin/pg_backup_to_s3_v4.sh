@@ -46,10 +46,10 @@ BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
 #  https://${S3_BUCKET}.s3-us-east-2.amazonaws.com/${BACKUP_FILE_NAME}
 
 # rename file
-mv /tmp/pg_backup.dump.gz.gpg /tmp/"${BACKUP_FILE_NAME}"
+mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
 
 #fileLocal="${1:-example-local-file.ext}"
-fileLocal=/tmp/"${1:-BACKUP_FILE_NAME}"
+fileLocal="/tmp/${1:-BACKUP_FILE_NAME}"
 bucket="${2:-mechanical-meat-database-backup}"
 region="${3:-us-east-2}"
 storageClass="${4:-STANDARD}"  # or 'REDUCED_REDUNDANCY'
@@ -186,4 +186,4 @@ curl -s -L --proto-redir =https -X "${httpReq}" -T "${fileLocal}" \
 
 # Remove the encrypted backup file
 #rm /tmp/pg_backup.dump.gz.gpg
-rm /tmp/"${BACKUP_FILE_NAME}"
+rm "/tmp/${BACKUP_FILE_NAME}"
