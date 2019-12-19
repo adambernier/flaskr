@@ -51,7 +51,7 @@ mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
 #fileLocal="${1:-example-local-file.ext}"
 fileLocal="/tmp/${BACKUP_FILE_NAME}"
 bucket="${2:-mechanical-meat-database-backup}"
-region="${3:-us-east-2}"
+region="${3:-us-east-1}"
 storageClass="${4:-STANDARD}"  # or 'REDUCED_REDUNDANCY'
 
 m_openssl() {
