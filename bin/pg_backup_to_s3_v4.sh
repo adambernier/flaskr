@@ -29,9 +29,8 @@ mv pg_backup.dump.gz.gpg BACKUP_FILE_NAME
 
 #fileLocal="${1:-/tmp/${BACKUP_FILE_NAME}}"
 fileLocal="${1:-${BACKUP_FILE_NAME}}"
-fileRemote="${fileLocal}"
-#fileRemote=BACKUP_FILE_NAME
-#fileLocal="/tmp/${BACKUP_FILE_NAME}"
+#fileRemote="${fileLocal}"
+fileRemote=BACKUP_FILE_NAME
 bucket="${2:-mechanical-meat-database-backup}"
 region="${3:-}"
 storageClass="${4:-STANDARD}"  # or 'REDUCED_REDUNDANCY'
