@@ -2,6 +2,7 @@ set -eux
 set -o pipefail
 
 #!/bin/sh
+cd "$(dirname "$0")"
 
 # Download the latest backup from
 # Heroku and gzip it
