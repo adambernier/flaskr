@@ -26,15 +26,15 @@ BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
 # Make sure to use the UTC
 # date for S3 signature!
 
-DATE=`date -R -u`
+#DATE=`date -R -u`
 
-S3_PATH="/${S3_BUCKET}/${BACKUP_FILE_NAME}"
+#S3_PATH="/${S3_BUCKET}/${BACKUP_FILE_NAME}"
 
 # Generate S3 signature needed
 # to upload file to the bucket
 
-S3_STRING="PUT\n\napplication/octet-stream\n${DATE}\n${S3_PATH}"
-S3_SIGNATURE=`echo -en ${S3_STRING} | openssl sha1 -hmac ${S3_SECRET} -binary | base64`
+#S3_STRING="PUT\n\napplication/octet-stream\n${DATE}\n${S3_PATH}"
+#S3_SIGNATURE=`echo -en ${S3_STRING} | openssl sha1 -hmac ${S3_SECRET} -binary | base64`
 
 # Upload the file to S3 using
 # the signature auth header
@@ -45,7 +45,9 @@ S3_SIGNATURE=`echo -en ${S3_STRING} | openssl sha1 -hmac ${S3_SECRET} -binary | 
 #  -H "Authorization: AWS ${S3_KEY}:${S3_SIGNATURE}" \
 #  https://${S3_BUCKET}.s3-us-east-2.amazonaws.com/${BACKUP_FILE_NAME}
 
-
+# rename file
+mv /tmp/pg_backup.dump.gz.gpg "${BACKUP_FILE_NAME}"
+rm /tmp/pg_backup.dump.gz.gpg
 
 #fileLocal="${1:-example-local-file.ext}"
 fileLocal=/tmp/pg_backup.dump.gz.gpg
@@ -94,7 +96,7 @@ if [ -z "${AWS_CONFIG_FILE:-}" ]; then
   else
     awsAccess="${S3_KEY}"
     awsSecret="${S3_SECRET}"
-    awsRegion='us-east-2'
+    awsRegion='us-east-1'
   fi
 else
   awsProfile='default'
@@ -113,8 +115,8 @@ if [ -z "${region}" ]; then
   region="${awsRegion}"
 fi
 
-echo "${awsAccess}"
-echo "${awsSecret}"
+#echo "${awsAccess}"
+#echo "${awsSecret}"
 echo "Uploading" "${fileLocal}" "->" "${S3_BUCKET}" "${region}" "${storageClass}"
 echo "| $(uname) | $(m_openssl version) | $(m_sed --version | head -1) |"
 
@@ -142,9 +144,7 @@ else
 fi
 
 # 1. Create canonical request
-
 # NOTE: order significant in ${headerList} and ${canonicalRequest}
-
 headerList='content-type;host;x-amz-content-sha256;x-amz-date;x-amz-server-side-encryption;x-amz-storage-class'
 
 canonicalRequest="\
@@ -162,11 +162,9 @@ ${headerList}
 ${payloadHash}"
 
 # Hash it
-
 canonicalRequestHash=$(printf '%s' "${canonicalRequest}" | m_openssl dgst -sha256 -hex 2>/dev/null | m_sed 's/^.* //')
 
 # 2. Create string to sign
-
 stringToSign="\
 ${authType}
 ${dateValueL}
@@ -174,11 +172,9 @@ ${dateValueS}/${region}/${service}/aws4_request
 ${canonicalRequestHash}"
 
 # 3. Sign the string
-
 signature=$(awsStringSign4 "${awsSecret}" "${dateValueS}" "${region}" "${service}" "${stringToSign}")
 
 # Upload
-
 curl -s -L --proto-redir =https -X "${httpReq}" -T "${fileLocal}" \
   -H "Content-Type: ${contentType}" \
   -H "Host: ${S3_BUCKET}${baseUrl}" \
@@ -190,4 +186,5 @@ curl -s -L --proto-redir =https -X "${httpReq}" -T "${fileLocal}" \
   "https://${S3_BUCKET}${baseUrl}/${BACKUP_FILE_NAME}"
 
 # Remove the encrypted backup file
-rm /tmp/pg_backup.dump.gz.gpg
+#rm /tmp/pg_backup.dump.gz.gpg
+rm "${BACKUP_FILE_NAME}"
