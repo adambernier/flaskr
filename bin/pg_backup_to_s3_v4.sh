@@ -5,24 +5,32 @@ set -o pipefail
 
 # Download the latest backup from
 # Heroku and gzip it
-heroku pg:backups:download --output=/tmp/pg_backup.dump --app $APP_NAME
-gzip /tmp/pg_backup.dump
+#heroku pg:backups:download --output=/tmp/pg_backup.dump --app $APP_NAME
+#gzip /tmp/pg_backup.dump
+heroku pg:backups:download --output=pg_backup.dump --app $APP_NAME
+gzip pg_backup.dump
 
 # Encrypt the gzipped backup file
 # using GPG passphrase
-gpg --yes --batch --passphrase=$PG_BACKUP_PASSWORD -c /tmp/pg_backup.dump.gz
+#gpg --yes --batch --passphrase=$PG_BACKUP_PASSWORD -c /tmp/pg_backup.dump.gz
+gpg --yes --batch --passphrase=$PG_BACKUP_PASSWORD -c pg_backup.dump.gz
 
 # Remove the plaintext backup file
-rm /tmp/pg_backup.dump.gz
+#rm /tmp/pg_backup.dump.gz
+rm pg_backup.dump.gz
 
 # Generate backup filename based
 # on the current date
 BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
 #BACKUP_FILE_NAME="pg_backup_to_s3_v4.sh"
 
-mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
+#mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
+mv pg_backup.dump.gz.gpg BACKUP_FILE_NAME
 
-fileLocal="${1:-/tmp/${BACKUP_FILE_NAME}}"
+#fileLocal="${1:-/tmp/${BACKUP_FILE_NAME}}"
+fileLocal="${1:-${BACKUP_FILE_NAME}}"
+fileRemote="${fileLocal}"
+#fileRemote=BACKUP_FILE_NAME
 #fileLocal="/tmp/${BACKUP_FILE_NAME}"
 bucket="${2:-mechanical-meat-database-backup}"
 region="${3:-}"
@@ -80,10 +88,6 @@ else
   awsSecret="$(iniGet "${AWS_CONFIG_FILE}" "${awsProfile}" 'aws_secret_access_key')"
   awsRegion="$(iniGet "${AWS_CONFIG_FILE}" "${awsProfile}" 'region')"
 fi
-
-# Initialize defaults
-#fileRemote="${fileLocal}"
-fileRemote=BACKUP_FILE_NAME
 
 if [ -z "${region}" ]; then
   region="${awsRegion}"
@@ -161,4 +165,5 @@ curl -s -L --proto-redir =https -X "${httpReq}" -T "${fileLocal}" \
 
 # Remove the encrypted backup file
 #rm /tmp/pg_backup.dump.gz.gpg
-rm "/tmp/${BACKUP_FILE_NAME}"
+#rm "/tmp/${BACKUP_FILE_NAME}"
+rm BACKUP_FILE_NAME
