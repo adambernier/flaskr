@@ -47,7 +47,6 @@ BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
 
 # rename file
 mv /tmp/pg_backup.dump.gz.gpg "${BACKUP_FILE_NAME}"
-rm /tmp/pg_backup.dump.gz.gpg
 
 #fileLocal="${1:-example-local-file.ext}"
 fileLocal=/tmp/pg_backup.dump.gz.gpg
