@@ -2,13 +2,14 @@ set -eux
 set -o pipefail
 
 #!/bin/sh
-cd "$(dirname "$0")"
+
+cd "${BASH_SOURCE%/*}" || exit
 
 # Download the latest backup from
 # Heroku and gzip it
 #heroku pg:backups:download --output=/tmp/pg_backup.dump --app $APP_NAME
 #gzip /tmp/pg_backup.dump
-#heroku pg:backups:download --output=pg_backup.dump --app $APP_NAME
+heroku pg:backups:download --output=pg_backup.dump --app $APP_NAME
 gzip pg_backup.dump
 
 # Encrypt the gzipped backup file
