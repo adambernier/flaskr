@@ -51,7 +51,7 @@ mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
 #fileLocal="${1:-example-local-file.ext}"
 fileLocal="/tmp/${BACKUP_FILE_NAME}"
 bucket="${2:-mechanical-meat-database-backup}"
-region="${3:-us-east-1}"
+region="${3:-}"
 storageClass="${4:-STANDARD}"  # or 'REDUCED_REDUNDANCY'
 
 m_openssl() {
@@ -95,7 +95,7 @@ if [ -z "${AWS_CONFIG_FILE:-}" ]; then
   else
     awsAccess="${S3_KEY}"
     awsSecret="${S3_SECRET}"
-    awsRegion='us-east-1'
+    awsRegion='us-east-2'
   fi
 else
   awsProfile='default'
