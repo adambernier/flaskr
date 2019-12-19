@@ -47,7 +47,8 @@ S3_SIGNATURE=`echo -en ${S3_STRING} | openssl sha1 -hmac ${S3_SECRET} -binary | 
 
 
 
-fileLocal="${1:-example-local-file.ext}"
+#fileLocal="${1:-example-local-file.ext}"
+fileLocal=/tmp/pg_backup.dump.gz.gpg
 bucket="${2:-mechanical-meat-database-backup}"
 region="${3:-us-east-2}"
 storageClass="${4:-STANDARD}"  # or 'REDUCED_REDUNDANCY'
@@ -86,7 +87,6 @@ iniGet() {
 }
 
 # Initialize access keys
-
 if [ -z "${AWS_CONFIG_FILE:-}" ]; then
   if [ -z "${S3_KEY:-}" ]; then
     echo 'AWS_CONFIG_FILE or AWS_ACCESS_KEY/AWS_SECRET_KEY envvars not set.'
@@ -107,9 +107,7 @@ else
 fi
 
 # Initialize defaults
-
-#fileRemote="${fileLocal}"
-fileRemote="/tmp/pg_backup.dump.gz.gpg"
+fileRemote="${fileLocal}"
 
 if [ -z "${region}" ]; then
   region="${awsRegion}"
