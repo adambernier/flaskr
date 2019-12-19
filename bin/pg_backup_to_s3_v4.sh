@@ -149,7 +149,6 @@ headerList='content-type;host;x-amz-content-sha256;x-amz-date;x-amz-server-side-
 canonicalRequest="\
 ${httpReq}
 /${fileRemote}
-
 content-type:${contentType}
 host:${S3_BUCKET}${baseUrl}
 x-amz-content-sha256:${payloadHash}
