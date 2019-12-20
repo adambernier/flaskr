@@ -70,6 +70,10 @@ def create_app(test_config=None):
     @app.route('/hello')
     def hello():
         return 'Hello, World!'
+        
+    @app.route('/googlef50b5373f53496a4.html')
+    def googlef50b5373f53496a4():
+        return send_from_directory('/static','googlef50b5373f53496a4.html')
 
     @app.after_request
     def add_header(response):
