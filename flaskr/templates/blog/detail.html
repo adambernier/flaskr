@@ -32,7 +32,7 @@
   {% block javascript %}
     <script type="text/javascript">
     $(document).ready(function() {
-        $("#click-btn").click(function() {
+        $("#click-btn").on('touchstart click', function() {
             $.ajax({
                 url: "{{ url_for('blog.thank', id=post['id']) }}",
                 method: "POST",
