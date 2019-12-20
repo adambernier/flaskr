@@ -16,11 +16,11 @@
       href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/styles/default.min.css">
 <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>-->
-<title>{% block title %}{% endblock %} - Flaskr Experimentation</title>
+<title>{% block title %}{% endblock %} - Mechanical Meat</title>
 </head>
 <body>
 <nav>
-  <h1>Flaskr Experimentation</h1>
+  <h1>Mechanical Meat</h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
@@ -40,4 +40,8 @@
   {% endfor %}
   {% block content %}{% endblock %}
 </section>
+<nav>
+  <hr>
+  <a href="{{ url_for('blog.privacy_policy') }}">Privacy Policy</a>
+</nav>
 </body>
