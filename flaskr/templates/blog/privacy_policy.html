@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Privacy Policy{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('blog.index') }}">Back to home</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <article class="post">
+    <p>{{ privacy_language }}</p>
+  </article>
+
+{% endblock %}
