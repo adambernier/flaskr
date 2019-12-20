@@ -25,7 +25,8 @@
         <a href="{{ url_for('blog.tag', page=1, tag_slug=tag) }}">{{ tag }}</a>
       {% endfor %}
     {% endif %}
-    <p><button id="click-btn" data-postid={{ post['id'] }}>Say thanks!</button></p>
+    <p></p>
+    <button class="btn-submit" id="click-btn" data-postid={{ post['id'] }}>Say thanks!</button>
     <p>Post thanked {{ thank_count }} time(s).</p>
   </article>
 
