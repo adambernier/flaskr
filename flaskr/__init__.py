@@ -13,7 +13,7 @@ def create_app(test_config=None):
     md = Misaka()
     
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_folder='static')
     #app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issue
     
     # User session management setup
@@ -73,7 +73,7 @@ def create_app(test_config=None):
         
     @app.route('/googlef50b5373f53496a4.html')
     def googlef50b5373f53496a4():
-        return send_from_directory(app.instance_path,'googlef50b5373f53496a4.html')
+        return send_from_directory(app.static_folder,'googlef50b5373f53496a4.html')
 
     @app.after_request
     def add_header(response):
