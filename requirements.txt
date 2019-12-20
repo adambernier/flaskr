@@ -11,3 +11,7 @@ Werkzeug==0.16.0
 pygments==2.5.2
 markdown==3.1.1
 python-slugify==4.0.0
+pyOpenSSL==19.1.0
+requests==2.18.4
+oauthlib==3.1.0
+Flask-Login==0.4.1
