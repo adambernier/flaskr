@@ -1,6 +1,12 @@
 from flask import (
     Blueprint, flash, g, json, redirect, render_template, request, url_for
 )
+from flask_login import (
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 from psycopg2 import errors 
 from slugify import slugify
 from werkzeug.exceptions import abort, BadRequestKeyError
@@ -49,6 +55,10 @@ def index(page=None):
             last_post = False
     except IndexError:
         last_post = True
+        
+    if current_user.is_authenticated:
+        g.user = current_user
+        
     return render_template('blog/index.html',posts=posts,page=page,
         PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
 

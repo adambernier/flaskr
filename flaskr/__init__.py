@@ -4,14 +4,22 @@ import psycopg2
 import urllib.parse as urlparse
 
 from flask import Flask
+from flask_login import LoginManager
 from flask_misaka import Misaka
+
+from .auth import User
 
 def create_app(test_config=None):
     md = Misaka()
     
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issue
+    #app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issue
+    
+    # User session management setup
+    # https://flask-login.readthedocs.io/en/latest
+    login_manager = LoginManager()
+    login_manager.init_app(app)
     
     md.init_app(app)
     
@@ -51,13 +59,6 @@ def create_app(test_config=None):
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
-    
-    # images 
-    UPLOAD_DIR = os.path.join(app.instance_path,'uploads')
-    os.makedirs(UPLOAD_DIR,exist_ok=True)
-    ALLOWED_EXTENSIONS = set(['png', 'jpg'])
-    app.config['UPLOAD_DIR'] = UPLOAD_DIR
-    app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024
 
     # ensure the instance folder exists
     try:
@@ -79,3 +80,8 @@ def create_app(test_config=None):
     return app
 
 app = create_app()
+
+# Flask-Login helper to retrieve a user from our db
+@app.login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
