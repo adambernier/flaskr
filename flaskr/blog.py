@@ -247,7 +247,7 @@ The following policy is intended to explain how your personal information will b
 
 Email and other private information
 
-When you decide to go through registration process in order to obtain personal user account at mechanical-meat.com, you are proposed to fill registration form which asks for your email and name. Your email is needed for us to complete registration process and to restore your account password if you will ask about it. We will not send you any spam messages. Actually, you will get emails from mechanical-meat only if you chose to - it can be used to notify you about private messages, sent to you by other users, or satisfaction of your request or appearance of new comments to your articles etc.
+When you decide to go through registration process in order to obtain personal user account at mechanical-meat.com, you are proposed to fill registration form which asks for your email and name. Your email is needed for us to complete registration process and to restore your account password if you will ask about it. We will not send you any spam messages. Actually, you will get emails from Mechanical Meat only if you chose to - it can be used to notify you about private messages, sent to you by other users, or satisfaction of your request or appearance of new comments to your articles etc.
 
 Please, do not use your email address as your user-name unless you are fully aware of fact that it will become visible to all visitors of the site.
 '''
