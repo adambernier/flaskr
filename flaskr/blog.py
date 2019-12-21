@@ -275,6 +275,13 @@ def delete(id):
     db.execute('DELETE FROM post WHERE id = %s;', (id,))
     return redirect(url_for('blog.index'))
     
+@bp.route('/<int:id>/comment_delete', methods=('POST',))
+@login_required
+def comment_delete(id):
+    db = get_db()
+    db.execute('DELETE FROM post_comment where id = %s;', (id,))
+    return redirect(url_for('blog.index'))
+    
 @bp.route('/privacy_policy')
 def privacy_policy():
     privacy_language = '''

@@ -30,11 +30,16 @@
     <p>Post thanked {{ thank_count }} time(s).</p>
   </article>
   
-  <hr>
+  {% if comments %}
+    <hr>
+  {% endif %}
   <div>
     {% for comment in comments %}
       <div class="about">{{ comment['username'] }} wrote on {{ comment['created'].strftime('%Y-%m-%d') }}:</div>
       {{ comment['body']|markdown }}
+      <form action="{{ url_for('blog.comment_delete', id=comment['id']) }}" method="post">
+        <input class="danger" type="submit" value="Delete Comment" onclick="return confirm('Are you sure?');">
+      </form>
       {% if not loop.last %}
         <hr>
       {% endif %}
