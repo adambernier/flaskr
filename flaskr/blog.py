@@ -62,7 +62,7 @@ def index(page=None):
     return render_template('blog/index.html',posts=posts,page=page,
         PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
 
-@bp.route('/create', methods=('GET', 'POST'))
+@bp.route('/create', methods=('GET', 'POST',))
 @login_required
 def create():
     if request.method == 'POST':
@@ -109,11 +109,27 @@ def create():
             return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html')
+    
+@bp.route('/create_comment', methods=('POST',))
+@login_required
+def create_comment():
+    body = request.form['body']
+    post_id = request.form['post_id']
+    author_id = request.form['author_id']
+    
+    db = get_db()
+    db.execute(
+        'INSERT INTO post_comment (body, post_id, author_id)'
+        ' VALUES (%s,%s,%s);',
+        (body,post_id,author_id)
+    )
+    
+    return redirect(url_for('blog.index'))
 
 def get_post(id, check_author=True):
     get_db().execute("""
         SELECT p.id, title, body, created, author_id, username, 
-            thank_count, pt.tags
+            thank_count, pt.tags 
          FROM post p JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
             SELECT pt.post_id, string_agg(t.title, ' ') tags
@@ -133,8 +149,18 @@ def get_post(id, check_author=True):
 
     if check_author and post['author_id'] != g.user['id']:
         abort(403)
+        
+    get_db().execute("""
+        SELECT c.id, body, created, username 
+        FROM post_comment c
+            LEFT JOIN usr u 
+            ON u.id = c.author_id 
+        WHERE c.post_id = %s;""", 
+        (post['id'],)
+    )
+    comments = get_db().fetchall()
 
-    return post
+    return post, comments 
     
 @bp.route('/<int:id>/thank', methods=('POST',))
 def thank(id):
@@ -154,18 +180,18 @@ def thank(id):
 @bp.route('/<int:id>/detail',methods=('GET',))
 @login_required
 def detail(id):
-    post = get_post(id)
+    post, comments = get_post(id)
     try:
         thank_count = request.args['thank_count']
     except BadRequestKeyError:
         thank_count = post['thank_count']
-    print(thank_count)
-    return render_template('blog/detail.html', post=post, thank_count=thank_count)
+    return render_template('blog/detail.html', post=post, 
+                           comments=comments, thank_count=thank_count)
     
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
-    post = get_post(id)
+    post, comments = get_post(id)
 
     if request.method == 'POST':
         title = request.form['title']
@@ -243,11 +269,10 @@ def tag(page=None,tag_slug=None):
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    get_post(id)
     db = get_db()
     db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
+    db.execute('DELETE FROM post_comment where post_id = %s;', (id,))
     db.execute('DELETE FROM post WHERE id = %s;', (id,))
-    #db.commit()
     return redirect(url_for('blog.index'))
     
 @bp.route('/privacy_policy')
