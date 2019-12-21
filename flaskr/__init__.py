@@ -5,7 +5,7 @@ import urllib.parse as urlparse
 
 from flask import Flask, send_from_directory 
 from flask_login import LoginManager
-from flask_misaka import Misaka
+#from flask_misaka import Misaka
 from flaskext.markdown import Markdown 
 
 from .auth import User
