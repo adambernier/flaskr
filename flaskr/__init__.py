@@ -6,11 +6,12 @@ import urllib.parse as urlparse
 from flask import Flask, send_from_directory 
 from flask_login import LoginManager
 from flask_misaka import Misaka
+from flaskext.markdown import Markdown 
 
 from .auth import User
 
 def create_app(test_config=None):
-    md = Misaka(EXT_NO_INTRA_EMPHASIS=True)
+    #md = Misaka(ext=('no-intra-emphasis',))
     
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True, static_folder='static')
@@ -21,7 +22,8 @@ def create_app(test_config=None):
     login_manager = LoginManager()
     login_manager.init_app(app)
     
-    md.init_app(app)
+    #md.init_app(app)
+    Markdown(app)
     
     from . import db
     db.init_app(app)
