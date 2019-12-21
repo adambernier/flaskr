@@ -10,7 +10,7 @@ from flask_misaka import Misaka
 from .auth import User
 
 def create_app(test_config=None):
-    md = Misaka()
+    md = Misaka(EXT_NO_INTRA_EMPHASIS=True)
     
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True, static_folder='static')
