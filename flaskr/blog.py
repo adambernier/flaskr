@@ -111,7 +111,6 @@ def create():
     return render_template('blog/create.html')
     
 @bp.route('/create_comment', methods=('POST',))
-@login_required
 def create_comment():
     body = request.form['body']
     post_id = request.form['post_id']
@@ -147,8 +146,8 @@ def get_post(id, check_author=True):
     if post is None:
         abort(404, "Post id {0} doesn't exist.".format(id))
 
-    if check_author and post['author_id'] != g.user['id']:
-        abort(403)
+    #if check_author and post['author_id'] != g.user['id']:
+    #    abort(403)
         
     get_db().execute("""
         SELECT c.id, body, created, username 
@@ -178,7 +177,6 @@ def thank(id):
         return redirect(url_for('blog.detail'))
     
 @bp.route('/<int:id>/detail',methods=('GET',))
-@login_required
 def detail(id):
     post, comments = get_post(id)
     try:
