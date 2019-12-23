@@ -22,8 +22,9 @@
       {{ post['body']|markdown }}
       {% if post['tags'] %}
         {% set tag_list = post['tags'].split(' ') %}
-        {% for tag in tag_list %}
-          <a href="{{ url_for('blog.tag', page=1, tag_slug=tag) }}">{{ tag }}</a>
+        {% set tag_slug_list = post['tag_slugs'].split(' ') %}
+        {% for tag, tag_slug in tag_list|zip(tag_slug_list) %}
+          <a href="{{ url_for('blog.tag', page=1, tag_slug=tag_slug) }}">{{ tag }}</a>
         {% endfor %}
       {% endif %}
       {% if post['addl_tags'] %}

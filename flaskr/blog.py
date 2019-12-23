@@ -1,5 +1,6 @@
 from flask import (
-    Blueprint, flash, g, json, redirect, render_template, request, url_for
+    Blueprint, flash, g, json, jsonify, redirect, render_template, 
+    request, url_for
 )
 from flask_login import (
     current_user,
@@ -31,11 +32,13 @@ def index(page=None):
     count, min_id = result['row_count'], result['min_id']
     page_from = count - ((page - 1) * PAGINATION_SIZE)
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, pt.tags
+        SELECT p.id, title, body, created, author_id, username, 
+            pt.tags, pt.tag_slugs 
          FROM post p
          JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
-            SELECT pt.post_id, string_agg(t.title, ' ') tags
+            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                string_agg(t.slug, ' ') tag_slugs
             FROM tag t
                 JOIN post_tag pt
                 ON pt.tag_id = t.id
@@ -128,10 +131,11 @@ def create_comment():
 def get_post(id, check_author=True):
     get_db().execute("""
         SELECT p.id, title, body, created, author_id, username, 
-            thank_count, pt.tags 
+            thank_count, pt.tags, pt.tag_slugs 
          FROM post p JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
-            SELECT pt.post_id, string_agg(t.title, ' ') tags
+            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                string_agg(t.slug, ' ') tag_slugs 
             FROM tag t
                 JOIN post_tag pt
                 ON pt.tag_id = t.id
@@ -195,6 +199,8 @@ def update(id):
         title = request.form['title']
         body = request.form['body']
         tags = request.form['tags']
+        tags = tags.split(' ') # expand to allow other delimiters?
+        tag_slugs = [slugify(tag) for tag in tags]
         error = None
 
         if not title:
@@ -209,15 +215,42 @@ def update(id):
                 ' WHERE id = %s;',
                 (title, body, id)
             )
+            # doesn't cost a lot to just delete any existing tags 
+            db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
+            tag_ids = []
+            for tag,tag_slug in zip(tags,tag_slugs):
+                try:                 
+                    db.execute(
+                        'INSERT INTO tag (title, slug)'
+                        ' VALUES (%s,%s) RETURNING id;',
+                        (tag, tag_slug,)
+                    )
+                    tag_ids.append(db.fetchone()['id'])
+                except errors.UniqueViolation:
+                    db.execute(
+                        'SELECT id FROM tag WHERE slug = %s;',
+                        (tag_slug,)
+                    )
+                    tag_ids.append(db.fetchone()['id'])
+            db.executemany(
+                'INSERT INTO post_tag (post_id, tag_id)'
+                ' VALUES (%s,%s);',
+                list(zip([id]*len(tag_ids),tag_ids))
+            )
             return redirect(url_for('blog.index'))
 
     return render_template('blog/update.html', post=post)
-    
+
+@bp.route('/tag',defaults={'page':1})
 @bp.route('/tag/<tag_slug>/page/<int:page>')
 def tag(page=None,tag_slug=None):
     if not page:
         page = 1
     PAGINATION_SIZE = 3
+    
+    if not tag_slug:
+        tag_slug = request.args.get('autocomplete')
+    
     db = get_db()
     db.execute(
         'SELECT count(p.id) row_count, min(p.id) min_id FROM post p'
@@ -227,11 +260,12 @@ def tag(page=None,tag_slug=None):
     page_from = count - ((page - 1) * PAGINATION_SIZE)
     db.execute("""
         SELECT p.id, title, body, created, author_id, username, 
-               pt.tags, pt_addl.addl_tags
+               pt.tags, pt.tag_slugs, pt_addl.addl_tags, pt_addl.addl_tag_slugs
          FROM post p
          JOIN usr u ON p.author_id = u.id
          JOIN (
-            SELECT pt.post_id, string_agg(t.title, ' ') tags
+            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                string_agg(t.title, ' ') tag_slugs 
             FROM tag t
                 JOIN post_tag pt
                 ON pt.tag_id = t.id
@@ -240,7 +274,8 @@ def tag(page=None,tag_slug=None):
          ) pt
          ON pt.post_id = p.id
          LEFT JOIN (
-            SELECT pt.post_id, string_agg(t.title, ' ') addl_tags
+            SELECT pt.post_id, string_agg(t.title, ' ') addl_tags,
+                string_agg(t.title, ' ') addl_tag_slugs
             FROM tag t
                 JOIN post_tag pt
                 ON pt.tag_id = t.id
@@ -279,7 +314,23 @@ def comment_delete(id):
     db = get_db()
     db.execute('DELETE FROM post_comment where id = %s;', (id,))
     return redirect(url_for('blog.index'))
+
+@bp.route('/autocomplete', methods=('GET',))
+def autocomplete():
+    search = request.args.get('q')
     
+    db = get_db()
+    db.execute('''
+        SELECT title 
+        FROM tag 
+        WHERE slug like %s
+        ORDER by title;''',
+        ('%' + search + '%',)
+        )
+    tags = [t['title'] for t in db.fetchall()]
+    
+    return jsonify(matching_results=tags) 
+
 @bp.route('/privacy_policy')
 def privacy_policy():
     privacy_language = '''

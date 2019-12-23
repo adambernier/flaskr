@@ -21,8 +21,9 @@
     {{ post['body']|markdown }}
     {% if post['tags'] %}
       {% set tag_list = post['tags'].split(' ') %}
-      {% for tag in tag_list %}
-        <a href="{{ url_for('blog.tag', page=1, tag_slug=tag) }}">{{ tag }}</a>
+      {% set tag_slug_list = post['tag_slugs'].split(' ') %}
+      {% for tag, tag_slug in tag_list|zip(tag_slug_list) %}
+        <a href="{{ url_for('blog.tag', page=1, tag_slug=tag_slug) }}">{{ tag }}</a>
       {% endfor %}
     {% endif %}
     <p></p>
@@ -37,9 +38,11 @@
     {% for comment in comments %}
       <div class="about">{{ comment['username'] }} wrote on {{ comment['created'].strftime('%Y-%m-%d') }}:</div>
       {{ comment['body']|markdown }}
-      <form action="{{ url_for('blog.comment_delete', id=comment['id']) }}" method="post">
-        <input class="danger" type="submit" value="Delete Comment" onclick="return confirm('Are you sure?');">
-      </form>
+      {% if comment['author_id'] == g.user['id'] %}
+        <form action="{{ url_for('blog.comment_delete', id=comment['id']) }}" method="post">
+          <input class="danger" type="submit" value="Delete Comment" onclick="return confirm('Are you sure?');">
+        </form>
+      {% endif %}
       {% if not loop.last %}
         <hr>
       {% endif %}
@@ -72,9 +75,9 @@
                 method: "POST",
                 contentType: "application/json;charset=UTF-8",
                 dataType: "json",
-                data : {'postid': $('#click-btn').data('data-postid')},
+                data: {'postid': $('#click-btn').data('data-postid')},
                 success: function(response) {
-                    console.log(response);    
+                    console.log(response);
                 },
                 error: function(xhr) {
                     console.log(xhr);

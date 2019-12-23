@@ -12,7 +12,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <!-- include libraries(jQuery, bootstrap) -->
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<link href="//code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet"></link>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
 <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script> 
 
 <!-- include summernote css/js -->
@@ -26,31 +28,55 @@
 <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 <script data-ad-client="ca-pub-6493540194967906" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script type="text/javascript">
+$(function() {
+    $("#autocomplete").autocomplete({
+        source:function(request, response) {
+            $.getJSON("{{url_for('blog.autocomplete')}}",{
+                q: request.term, // in flask, "q" is argument to look for using request.args
+            }, function(data) {
+                response(data.matching_results); // matching_results from jsonify
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            console.log(ui.item.value); 
+        }
+    });
+});
+</script>
 <title>{% block title %}{% endblock %} - Mechanical Meat</title>
 </head>
 <body>
-<nav>
-  <h1>Mechanical Meat</h1>
-  <ul>
-    {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
-    {% else %}
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
-    {% endif %}
-  </ul>
-</nav>
-<section class="content">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
-  {% for message in get_flashed_messages() %}
-    <div class="flash">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
-</section>
-<nav>
-  <hr>
-  <a href="{{ url_for('blog.privacy_policy') }}">Privacy Policy</a>
-</nav>
+  <nav>
+    <h1>Mechanical Meat</h1>
+    <ul>
+      {% if g.user %}
+        <li><span>{{ g.user['username'] }}</span>
+        <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Log In</a>
+      {% endif %}
+    </ul>
+    <div>
+      <form action="{{ url_for('blog.tag', page=1) }}" method="get">
+        <label for="autocomplete">Search for tag: </label>
+        <input name="autocomplete" type="text" id="autocomplete"/>
+        <button class="btn-submit" id="go-btn">Go</button>
+      </form>
+    </div>
+  </nav>
+  <section class="content">
+    <header>
+      {% block header %}{% endblock %}
+    </header>
+    {% for message in get_flashed_messages() %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </section>
+  <nav>
+    <hr>
+    <a href="{{ url_for('blog.privacy_policy') }}">Privacy Policy</a>
+  </nav>
 </body>
