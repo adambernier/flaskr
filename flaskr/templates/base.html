@@ -58,14 +58,14 @@ $(function() {
         <li><a href="{{ url_for('auth.login') }}">Log In</a>
       {% endif %}
     </ul>
-    <div>
-      <form action="{{ url_for('blog.tag', page=1) }}" method="get">
-        <label for="autocomplete">Search for tag: </label>
-        <input name="autocomplete" type="text" id="autocomplete"/>
-        <button class="btn-submit" id="go-btn">Go</button>
-      </form>
-    </div>
   </nav>
+  <div>
+    <form action="{{ url_for('blog.tag', page=1) }}" method="GET">
+      <label for="autocomplete">Search for tag: </label>
+      <input name="autocomplete" type="text" id="autocomplete"/>
+      <button class="btn-submit" id="go-btn">Go</button>
+    </form>
+  </div>
   <section class="content">
     <header>
       {% block header %}{% endblock %}
