@@ -297,7 +297,7 @@ def tag(page=None,tag_slug=None):
     except IndexError:
         last_post = True
     return render_template('blog/index.html',posts=posts,page=page,
-        PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
+        PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post,tag_slug=tag_slug)
 
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required

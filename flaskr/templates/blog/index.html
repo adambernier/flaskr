@@ -40,9 +40,17 @@
   {% endfor %}
   
   {% if page > 1 %}
-    <a href="/page/{{ page - 1 }}" style="float:left;">&lt;&lt; Newer</a>
+    {% if request.url_rule.endpoint == "blog.tag" %}
+      <a href="/tag/{{ tag_slug }}/page/{{ page - 1 }}" style="float:left;">&lt;&lt; Newer</a>
+    {% else %}
+      <a href="/page/{{ page - 1 }}" style="float:left;">&lt;&lt; Newer</a>
+    {% endif %}
   {% endif %}
   {% if posts|length == PAGINATION_SIZE and not last_post %}
-    <a href="/page/{{ page + 1 }}" style="float:right;">Older &gt;&gt;</a>
+    {% if request.url_rule.endpoint == "blog.tag" %}
+      <a href="/tag/{{ tag_slug }}/page/{{ page + 1 }}" style="float:right;">Older &gt;&gt;</a>
+    {% else %}
+      <a href="/page/{{ page + 1 }}" style="float:right;">Older &gt;&gt;</a>
+    {% endif %}
   {% endif %}
 {% endblock %}
