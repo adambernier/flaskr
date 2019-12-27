@@ -171,7 +171,7 @@ def callback():
         data={"from": "User <mailgun@sandbox826abd175eca4480bb33dd7076ab4f5b.mailgun.org>",
             "to": [os.environ.get('ADMIN_EMAIL')],
             "subject": "Hello",
-            "text": f"New user {users_name} just logged on!"})
+            "text": f"User {users_name} just logged on!"})
 
     # Send user back to homepage
     return redirect(url_for("index"))
