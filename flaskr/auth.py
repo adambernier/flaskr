@@ -161,6 +161,17 @@ def callback():
 
     # Begin user session by logging the user in
     login_user(user)
+    
+    # send email each time a new user logs in
+    mailgun_api_key = os.environ.get('MAILGUN_API_KEY',None)
+    mailgun_domain = os.environ.get('MAILGUN_DOMAIN',None)
+    requests.post(
+        f"https://api.mailgun.net/v3/{mailgun_domain}/messages",
+        auth=("api", mailgun_api_key),
+        data={"from": "User <mailgun@sandbox826abd175eca4480bb33dd7076ab4f5b.mailgun.org>",
+            "to": [os.environ.get('ADMIN_EMAIL')],
+            "subject": "Hello",
+            "text": f"New user {users_name} just logged on!"})
 
     # Send user back to homepage
     return redirect(url_for("index"))
@@ -201,6 +212,18 @@ def login_required(view):
 @login_required
 def logout():
     logout_user()
+    
+    # send email each time a new user logs out 
+    mailgun_api_key = os.environ.get('MAILGUN_API_KEY',None)
+    mailgun_domain = os.environ.get('MAILGUN_DOMAIN',None)
+    requests.post(
+        f"https://api.mailgun.net/v3/{mailgun_domain}/messages",
+        auth=("api", mailgun_api_key),
+        data={"from": "User <mailgun@sandbox826abd175eca4480bb33dd7076ab4f5b.mailgun.org>",
+            "to": [os.environ.get('ADMIN_EMAIL')],
+            "subject": "Hello",
+            "text": f"A user just logged off!"})
+    
     return redirect(url_for("index"))
 
 class User(UserMixin):
