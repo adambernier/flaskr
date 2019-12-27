@@ -3,7 +3,7 @@ import os
 import psycopg2
 import urllib.parse as urlparse
 
-from flask import Flask, send_from_directory 
+from flask import Flask, render_template, send_from_directory 
 from flask_login import LoginManager
 #from flask_misaka import Misaka
 from flaskext.markdown import Markdown 
@@ -92,3 +92,9 @@ app = create_app()
 @app.login_manager.user_loader
 def load_user(user_id):
     return User.get(user_id)
+    
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
+
