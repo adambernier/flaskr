@@ -60,7 +60,7 @@
 
                 var languages = [
                     'bsh', 'c', 'cc', 'cpp', 'cs', 'csh', 'cyc', 'cv', 'htm', 'html',
-                    'java', 'js', 'm', 'mxml', 'perl', 'pl', 'pm', 'py', 'php', 'rb',
+                    'java', 'js', 'm', 'mxml', 'perl', 'pl', 'pm', 'python', 'php', 'rb',
                     'sh', 'xhtml', 'xml', 'xsl'
                 ];
 
