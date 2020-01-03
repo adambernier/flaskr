@@ -1,19 +1,15 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}New Post{% endblock %}</h1>
+  <h1>{% block title %}Create About Me{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
     <form method="post">
       <div class='form-group'>
-        <label for='title'>Title</label>
-        <input type='text' class='form-control' id='title' name='title' value="{{ request.form['title'] }}" />
-      </div>
-      <div class='form-group'>
         {# including the SummerNote control on the form, from CDN #}
         <label for='summernote'>Content</label>
-        <textarea id="summernote" name="body" class='form-control'>{{ request.form['body'] }}</textarea>
+        <textarea id="summernote" name="body" class='form-control'>{{ request.form['about'] }}</textarea>
         <script type="text/javascript">
         $('#summernote').summernote({
           placeholder: 'Enter some content here.',
@@ -36,24 +32,11 @@
             lang:'en-US'
         });
         </script>
-      </div>
-      <div class='form-group'>
-        <label for='tags'>Tags</label>
-        <input type='text' class='form-control' id='tags' name='tags' value="{{ request.form['tags'] }}" />
-      </div>      
+      </div>   
       <div class='form-group'>
         {# note we use same name for Save and Cancel buttons, but a different value #}
         <button type="submit" name="submit" value="submit">Save</button>
         <button type="cancel" name="submit" value="cancel">Cancel</button>
       </div>
     </form>
-<!--
-  <form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title" value="{{ request.form['title'] }}" required>
-    <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
-    <input type="submit" value="Save">
-  </form>
--->
 {% endblock %}

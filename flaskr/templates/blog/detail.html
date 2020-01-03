@@ -1,10 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <!--<h1>{% block title %}Post{% endblock %}</h1>-->
-  {% if g.user %}
-    <a class="action" href="{{ url_for('blog.index') }}">Back to home</a>
-  {% endif %}
+  <a class="action" href="{{ url_for('blog.index') }}">Back to home</a>
 {% endblock %}
 
 {% block content %}

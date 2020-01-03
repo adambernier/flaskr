@@ -13,7 +13,9 @@ CREATE TABLE usr (
   username TEXT UNIQUE NOT NULL,
   email TEXT UNIQUE NOT NULL,
   pass TEXT,
-  profile_pic TEXT NOT NULL
+  profile_pic TEXT NOT NULL,
+  about TEXT,
+  username_slug TEXT
 );
 
 CREATE TABLE post (

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  
+{% endblock %}
+
+{% block content %}
+  <article class="user">
+    <header>
+      {% if user['profile_pic'] is defined %}
+        <img src="{{ user['profile_pic'] }}" alt="profile_pic" height="150" width="150">
+      {% endif %}
+      <div>
+        <h1>{{ user['username'] }}</h1>
+      </div>
+    </header>
+    {% if user['about'] %}
+      {{ user['about']|markdown }}
+    {% endif %}
+  </article>
+  {% if g.user['id'] == user['id'] %}
+    <a class="action" href="{{ url_for('about.update', id=user['id']) }}">Edit About Me</a>
+  {% endif %}
+
+{% endblock %}

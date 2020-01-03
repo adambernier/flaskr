@@ -18,6 +18,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flaskr.db import get_db
 
 from psycopg2.errors import UndefinedFunction
+from slugify import slugify
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -258,9 +259,11 @@ class User(UserMixin):
 
     @staticmethod
     def create(id_, username, email, profile_pic):
+        username_slug = slugify(username)
+        
         db = get_db()
         db.execute(
-            "INSERT INTO usr (id, username, email, profile_pic) "
-            "VALUES (%s, %s, %s, %s);",
-            (id_, username, email, profile_pic),
+            "INSERT INTO usr (id, username, email, profile_pic, username_slug) "
+            "VALUES (%s, %s, %s, %s), %s;",
+            (id_, username, email, profile_pic, username_slug),
         )
