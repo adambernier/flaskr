@@ -343,3 +343,8 @@ When you decide to go through registration process in order to obtain personal u
 Please, do not use your email address as your user-name unless you are fully aware of fact that it will become visible to all visitors of the site.
 '''
     return render_template('blog/privacy_policy.html',privacy_language=privacy_language)
+
+@bp.route('/robots.txt')
+def robots():
+    return render_template('robots.txt')
+
