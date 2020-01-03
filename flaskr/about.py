@@ -31,8 +31,8 @@ def get_user(id, check_user=True):
     if user is None:
         abort(404, "User id {0} doesn't exist.".format(id))
 
-    if check_user and user['id'] != g.user['id']:
-        abort(403)
+    #if check_user and user['id'] != g.user['id']:
+    #    abort(403)
 
     return user
     

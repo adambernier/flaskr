@@ -13,7 +13,7 @@
       <header>
         <div>
           <h1><a class="action" href="{{ url_for('blog.detail', id=post['id']) }}">{{ post['title'] }}</h1></a>
-          <div class="about">by <a href="{{ url_for('about.me', id=g.user['id']) }}">{{ post['username'] }}</a> on {{ post['created'].strftime('%Y-%m-%d') }}</div>
+          <div class="about">by <a href="{{ url_for('about.me', id=post['author_id']) }}">{{ post['username'] }}</a> on {{ post['created'].strftime('%Y-%m-%d') }}</div>
         </div>
         {% if g.user['id'] == post['author_id'] %}
           <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
