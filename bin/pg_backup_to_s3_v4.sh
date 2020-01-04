@@ -24,14 +24,12 @@ rm pg_backup.dump.gz
 # Generate backup filename based
 # on the current date
 BACKUP_FILE_NAME="mechanical-meat-database-backup-$(date '+%Y-%m-%d_%H.%M').gpg"
-#BACKUP_FILE_NAME="pg_backup_to_s3_v4.sh"
 
 #mv /tmp/pg_backup.dump.gz.gpg "/tmp/${BACKUP_FILE_NAME}"
 mv pg_backup.dump.gz.gpg $BACKUP_FILE_NAME
 
 #fileLocal="${1:-/tmp/${BACKUP_FILE_NAME}}"
 fileLocal="${1:-${BACKUP_FILE_NAME}}"
-#fileRemote="${fileLocal}"
 fileRemote=$BACKUP_FILE_NAME
 bucket="${2:-mechanical-meat-database-backup}"
 region="${3:-}"
