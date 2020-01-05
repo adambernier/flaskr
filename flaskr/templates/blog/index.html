@@ -8,6 +8,24 @@
 {% endblock %}
 
 {% block content %}
+  <nav>
+  {% if page > 1 %}
+    {% if request.url_rule.endpoint == "blog.tag" %}
+      <a href="/tag/{{ tag_slug }}/page/{{ page - 1 }}" style="float:left;">&lt;&lt; More recent posts</a>
+    {% else %}
+      <a href="/page/{{ page - 1 }}" style="float:left;">&lt;&lt; More recent posts</a>
+    {% endif %}
+  {% endif %}
+  {% if posts|length == PAGINATION_SIZE and not last_post %}
+    {% if request.url_rule.endpoint == "blog.tag" %}
+      <a href="/tag/{{ tag_slug }}/page/{{ page + 1 }}" style="float:right;">Less recent posts &gt;&gt;</a>
+    {% else %}
+      <a href="/page/{{ page + 1 }}" style="float:right;">Less recent posts &gt;&gt;</a>
+    {% endif %}
+  {% endif %}
+  </nav>
+  &nbsp;
+  
   {% for post in posts %}
     <article class="post">
       <header>
@@ -42,14 +60,14 @@
   <nav>
   {% if page > 1 %}
     {% if request.url_rule.endpoint == "blog.tag" %}
-      <a href="/tag/{{ tag_slug }}/page/{{ page - 1 }}" style="float:left;">&lt;&lt; Newer</a>
+      <a href="/tag/{{ tag_slug }}/page/{{ page - 1 }}" style="float:left;">&lt;&lt; More recent posts</a>
     {% else %}
       <a href="/page/{{ page - 1 }}" style="float:left;">&lt;&lt; Newer</a>
     {% endif %}
   {% endif %}
   {% if posts|length == PAGINATION_SIZE and not last_post %}
     {% if request.url_rule.endpoint == "blog.tag" %}
-      <a href="/tag/{{ tag_slug }}/page/{{ page + 1 }}" style="float:right;">Older &gt;&gt;</a>
+      <a href="/tag/{{ tag_slug }}/page/{{ page + 1 }}" style="float:right;">Less recent posts &gt;&gt;</a>
     {% else %}
       <a href="/page/{{ page + 1 }}" style="float:right;">Older &gt;&gt;</a>
     {% endif %}
