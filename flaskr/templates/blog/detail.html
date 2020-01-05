@@ -16,6 +16,7 @@
       {% endif %}
     </header>
     {{ post['body']|markdown }}
+    tags: 
     {% if post['tags'] %}
       {% set tag_list = post['tags'].split(' ') %}
       {% set tag_slug_list = post['tag_slugs'].split(' ') %}
