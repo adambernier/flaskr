@@ -59,7 +59,7 @@
                 var $select = $('<select class="form-control ext-highlight-select" />');
 
                 var languages = [
-                    'bash', 'c', 'cc', 'cpp', 'cs', 'csh', 'cyc', 'cv', 'htm', 'html',
+                    'bash', 'c', 'cc', 'cpp', 'cs', 'csh', 'cyc', 'cv', 'html', 'html',
                     'java', 'js', 'm', 'mxml', 'perl', 'pl', 'pm', 'python', 'php', 'rb',
                     'sh', 'sql', 'xhtml', 'xml', 'xsl'
                 ];
