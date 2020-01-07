@@ -177,7 +177,7 @@ input[type=submit] {
   align-self: start;
   min-width: 10em;
 }
-
+/*
 @media (min-width: 858px) {
     html {
         font-size: 12px;
@@ -207,4 +207,4 @@ input[type=submit] {
         font-size: 8px;
     }
 }
-
+*/
