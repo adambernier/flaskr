@@ -25,8 +25,8 @@
       {% endfor %}
     {% endif %}
     <p></p>
-    <button class="btn-submit" id="click-btn" data-postid={{ post['id'] }}>Say thanks!</button>
-    <p>Post thanked {{ thank_count }} time(s).</p>
+    <button class="btn-submit" id="click-btn" data-postid="{{ post['id'] }}">Say thanks!</button>
+    <p id="click-response">Post thanked {{ thank_count }} time(s).</p>
   </article>
   
   {% if comments %}
@@ -65,17 +65,17 @@
 {% endif %}
 
   {% block javascript %}
-    <script type="text/javascript">
+    <script>
     $(document).ready(function() {
         $("#click-btn").on('click touchstart', function() {
             $.ajax({
                 url: "{{ url_for('blog.thank', id=post['id']) }}",
                 method: "POST",
                 contentType: "application/json;charset=UTF-8",
-                dataType: "json",
                 data: {'postid': $('#click-btn').data('data-postid')},
                 success: function(response) {
                     console.log(response);
+                    $('#click-response').replaceWith(response);
                 },
                 error: function(xhr) {
                     console.log(xhr);

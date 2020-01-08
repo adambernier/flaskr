@@ -175,7 +175,8 @@ def thank(id):
         if db.rowcount == 1:
             db.execute('select thank_count from post where id = %s;',(id,))
             thank_count = db.fetchone()['thank_count']
-            return json.dumps({'status': 'success', 'thank_count': thank_count})
+            #return json.dumps({'status': 'success', 'thank_count': thank_count})
+            return f'''<p id="click-response">Post thanked {thank_count} time(s).</p>'''
         else:
             return json.dumps({'status': 'record not updated'})
         return redirect(url_for('blog.detail'))
