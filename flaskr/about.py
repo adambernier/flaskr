@@ -14,14 +14,14 @@ bp = Blueprint('about', __name__, url_prefix='/about')
 def get_user(id, check_user=True):
     try:
         get_db().execute("""
-            SELECT id, username, username_slug, profile_pic, about
+            SELECT id, username, username_slug, familyname, profile_pic, about
              FROM usr  
              WHERE id = %s;""",
             (id,)
         )
     except UndefinedFunction:
         get_db().execute("""
-            SELECT id, username, username_slug, profile_pic, about
+            SELECT id, username, username_slug, familyname, profile_pic, about
              FROM usr  
              WHERE id = %s;""",
             (str(id),)

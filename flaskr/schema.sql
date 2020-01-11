@@ -15,7 +15,8 @@ CREATE TABLE usr (
   pass TEXT,
   profile_pic TEXT NOT NULL,
   about TEXT,
-  username_slug TEXT
+  username_slug TEXT,
+  familyname TEXT
 );
 
 CREATE TABLE post (

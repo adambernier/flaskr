@@ -11,7 +11,7 @@
         <img src="{{ user['profile_pic'] }}" alt="profile_pic" height="150" width="150">
       {% endif %}
       <div>
-        <h1>{{ user['username'] }}</h1>
+        <h2>{{ user['username'] }} {{ user['familyname'] }}</h2>
       </div>
     </header>
     {% if user['about'] %}

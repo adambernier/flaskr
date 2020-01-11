@@ -147,18 +147,20 @@ def callback():
         users_email = userinfo_response.json()["email"]
         picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
+        family_name = userinfo_response.json()["family_name"]
     else:
         return "User email not available or not verified by Google.", 400
         
     # Create a user in your db with the information provided
     # by Google
     user = User(
-        id_=unique_id, username=users_name, email=users_email, profile_pic=picture
+        id_=unique_id, username=users_name, email=users_email, 
+        profile_pic=picture, family_name
     )
 
     # Doesn't exist? Add it to the database.
     if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture)
+        User.create(unique_id, users_name, users_email, picture, family_name)
 
     # Begin user session by logging the user in
     login_user(user)
@@ -228,11 +230,12 @@ def logout():
     return redirect(url_for("index"))
 
 class User(UserMixin):
-    def __init__(self, id_, username, email, profile_pic):
+    def __init__(self, id_, username, email, profile_pic, familyname):
         self.id = id_
         self.username = username
         self.email = email
         self.profile_pic = profile_pic
+        self.familyname = familyname
 
     @staticmethod
     def get(user_id):
@@ -254,16 +257,18 @@ class User(UserMixin):
             username=user['username'], 
             email=user['email'], 
             profile_pic=user['profile_pic']
+            familyname=user['familyname']
         )
         return user
 
     @staticmethod
-    def create(id_, username, email, profile_pic):
+    def create(id_, username, email, profile_pic, familyname):
         username_slug = slugify(username)
         
         db = get_db()
-        db.execute(
-            "INSERT INTO usr (id, username, email, profile_pic, username_slug) "
-            "VALUES (%s, %s, %s, %s, %s);",
-            (id_, username, email, profile_pic, username_slug),
+        db.execute("""
+            INSERT INTO usr 
+                (id, username, email, profile_pic, username_slug, familyname) 
+            VALUES (%s,%s,%s,%s,%s,%s);""",
+            (id_, username, email, profile_pic, username_slug, familyname),
         )
