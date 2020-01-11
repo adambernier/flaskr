@@ -47,7 +47,8 @@
     {% endfor %}
   </div>
   
-{% if g.user['id'] %}<!-- user must be logged in to comment -->
+<!-- user must be logged in to comment -->
+{# {% if g.user['id'] %} #}
   <hr>
   <h5>New Comment (Markdown allowed)</h5>
 
@@ -62,7 +63,7 @@
       <button type="cancel" name="submit" value="cancel">Cancel</button>
     </div>
   </form>
-{% endif %}
+{# {% endif %} #}
 
   {% block javascript %}
     <script>
