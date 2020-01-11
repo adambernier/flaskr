@@ -1,4 +1,5 @@
 import datetime as dt
+import itertools as it
 
 from flask import (
     Blueprint, current_app, flash, g, json, jsonify, redirect, 
@@ -19,6 +20,15 @@ from werkzeug.exceptions import abort, BadRequestKeyError
 from flaskr.auth import login_required
 from flaskr.db import get_db
 
+def paginate(iterable, page_size):
+    while True:
+        i1, i2 = it.tee(iterable)
+        iterable, page = (it.islice(i1, page_size, None),
+                list(it.islice(i2, page_size)))
+        if len(page) == 0:
+            break
+        yield page
+
 bp = Blueprint('blog', __name__)
 
 @bp.route('/')
@@ -35,7 +45,7 @@ def index(page=None):
         """)
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
-    page_from = count - ((page - 1) * PAGINATION_SIZE)
+    offset = (page - 1) * PAGINATION_SIZE 
     db.execute("""
         SELECT p.id, title, body, created, author_id, username, 
             pt.tags, pt.tag_slugs
@@ -55,10 +65,10 @@ def index(page=None):
              GROUP BY pt.post_id
          ) pt
          ON pt.post_id = p.id
-         WHERE p2.rownum <= %s
          ORDER BY created DESC
-         FETCH FIRST %s ROWS ONLY;""",
-        (page_from,PAGINATION_SIZE,)
+         LIMIT %s
+         OFFSET %s;""",
+        (PAGINATION_SIZE,offset,)
     )
     posts = db.fetchall()
     try:
@@ -82,7 +92,7 @@ def fts(page=None,search_slug=None):
         page = 1
     PAGINATION_SIZE = 3
     search = request.args.get('autocomplete')
-    print(search)
+    offset = (page - 1) * PAGINATION_SIZE 
     if not search:
         search = search_slug
     else:
@@ -115,7 +125,7 @@ def fts(page=None,search_slug=None):
     db.execute(qry,ids) # ids is a tuple
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
-    page_from = count - ((page - 1) * PAGINATION_SIZE)
+    
     qry = f"""
         SELECT p.id, title, body, created, author_id, username, 
             pt.tags, pt.tag_slugs 
@@ -136,10 +146,11 @@ def fts(page=None,search_slug=None):
             GROUP BY pt.post_id
          ) pt
          ON pt.post_id = p.id
-         WHERE p2.rownum <= %s AND p.id IN ({placeholders})
+         WHERE p.id IN ({placeholders})
          ORDER BY created DESC
-         FETCH FIRST %s ROWS ONLY;"""
-    db.execute(qry,ids+(page_from,)+ids+(PAGINATION_SIZE,))
+         LIMIT %s
+         OFFSET %s;"""
+    db.execute(qry,ids+ids+(PAGINATION_SIZE,offset,))
     posts = db.fetchall()
     try:
         if posts[-1]['id'] == min_id:
@@ -366,6 +377,7 @@ def tag(page=None,tag_slug=None):
     if not page:
         page = 1
     PAGINATION_SIZE = 3
+    offset = (page - 1) * PAGINATION_SIZE 
     
     if not tag_slug:
         tag_slug = request.args.get('autocomplete')
@@ -388,7 +400,6 @@ def tag(page=None,tag_slug=None):
         """,(tag_slug,))
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
-    page_from = count - ((page - 1) * PAGINATION_SIZE)
     db.execute("""
         SELECT p.id, title, body, created, author_id, username, 
                pt.tags, pt.tag_slugs, pt_addl.addl_tags, pt_addl.addl_tag_slugs
@@ -428,10 +439,10 @@ def tag(page=None,tag_slug=None):
             GROUP BY pt.post_id
          ) pt_addl
          ON pt_addl.post_id = p.id
-         WHERE p2.rownum <= %s
          ORDER BY created DESC
-         FETCH FIRST %s ROWS ONLY;""",
-        (tag_slug,tag_slug,tag_slug,page_from,PAGINATION_SIZE,)
+         LIMIT %s
+         OFFSET %s;""",
+        (tag_slug,tag_slug,tag_slug,PAGINATION_SIZE,offset,)
     )
     posts = db.fetchall()
     try:
