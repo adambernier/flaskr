@@ -14,6 +14,7 @@
       {% if g.user['id'] == post['author_id'] %}
         <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
       {% endif %}
+      <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
     </header>
     {{ post['body']|markdown }}
     tags: 
@@ -36,11 +37,11 @@
     {% for comment in comments %}
       <div class="about">{{ comment['username'] }} wrote on {{ comment['created'].strftime('%Y-%m-%d') }}:</div>
       {{ comment['body']|markdown }}
-      {# {% if comment['author_id'] == g.user['id'] %} #}
+      {% if comment['author_id'] == g.user['id'] %}
         <form action="{{ url_for('blog.comment_delete', id=comment['id']) }}" method="post">
           <input class="danger" type="submit" value="Delete Comment" onclick="return confirm('Are you sure?');">
         </form>
-      {# {% endif %} #}
+      {% endif %}
       {% if not loop.last %}
         <hr>
       {% endif %}
@@ -48,7 +49,7 @@
   </div>
   
 <!-- user must be logged in to comment -->
-{# {% if g.user['id'] %} #}
+{% if g.user['id'] %}
   <hr>
   <h5>New Comment (Markdown allowed)</h5>
 
@@ -63,7 +64,7 @@
       <button type="cancel" name="submit" value="cancel">Cancel</button>
     </div>
   </form>
-{# {% endif %} #}
+{% endif %}
 
   {% block javascript %}
     <script>
