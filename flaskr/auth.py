@@ -256,7 +256,7 @@ class User(UserMixin):
             id_=user['id'], 
             username=user['username'], 
             email=user['email'], 
-            profile_pic=user['profile_pic']
+            profile_pic=user['profile_pic'],
             familyname=user['familyname']
         )
         return user
