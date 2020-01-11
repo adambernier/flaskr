@@ -269,7 +269,7 @@ def get_post(id, check_author=True):
     #    abort(403)
         
     get_db().execute("""
-        SELECT c.id, body, created, username 
+        SELECT c.id, body, created, username, c.author_id 
         FROM post_comment c
             LEFT JOIN usr u 
             ON u.id = c.author_id 
