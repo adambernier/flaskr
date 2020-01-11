@@ -264,6 +264,6 @@ class User(UserMixin):
         db = get_db()
         db.execute(
             "INSERT INTO usr (id, username, email, profile_pic, username_slug) "
-            "VALUES (%s, %s, %s, %s), %s;",
+            "VALUES (%s, %s, %s, %s, %s);",
             (id_, username, email, profile_pic, username_slug),
         )
