@@ -155,7 +155,7 @@ def callback():
     # by Google
     user = User(
         id_=unique_id, username=users_name, email=users_email, 
-        profile_pic=picture, family_name
+        profile_pic=picture, familyname=family_name
     )
 
     # Doesn't exist? Add it to the database.
