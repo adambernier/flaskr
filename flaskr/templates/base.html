@@ -17,8 +17,8 @@
 <!--<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 <link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet">
-<script async src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script async src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
 <!--<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>-->
 
 <link rel="stylesheet" href="{{ url_for('static', filename='zenburn.css') }}">
@@ -31,18 +31,18 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>
 <script src="{{ url_for('static', filename='summernote-ext-highlight.js') }}"></script>
-<script data-ad-client="ca-pub-6493540194967906" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!--<script data-ad-client="ca-pub-6493540194967906" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>-->
 <script>
 $(function() {
     $("#autocomplete").autocomplete({
-        source:function(request, response) {
-            $.getJSON("{{url_for('blog.autocomplete')}}",{
+        source: function(request, response) {
+            $.getJSON("{{ url_for('blog.autocomplete') }}",{
                 q: request.term, // in flask, "q" is argument to look for using request.args
             }, function(data) {
                 response(data.matching_results); // matching_results from jsonify
             });
         },
-        minLength: 2,
+        minLength: 3,
         select: function(event, ui) {
             console.log(ui.item.value); 
         }
@@ -63,6 +63,13 @@ $(function() {
       {% endif %}
     </ul>
   </nav>
+  <div>
+    <form action="{{ url_for('blog.fts', page=1) }}" method="GET">
+      <label for="autocomplete">Search: </label>
+      <input name="autocomplete" type="text" id="autocomplete"/>
+      <button class="btn-submit" id="go-btn">Go</button>
+    </form>
+  </div>
   <section class="content">
     <header>
       {% block header %}{% endblock %}
@@ -75,11 +82,4 @@ $(function() {
   <nav>
     <a href="{{ url_for('blog.privacy_policy') }}">Privacy Policy</a>
   </nav>
-  <div style="float: right;">
-    <form action="{{ url_for('blog.tag', page=1) }}" method="GET">
-      <label for="autocomplete">Search for tag: </label>
-      <input name="autocomplete" type="text" id="autocomplete"/>
-      <button class="btn-submit" id="go-btn">Go</button>
-    </form>
-  </div>
 </body>

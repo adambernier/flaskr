@@ -1,6 +1,8 @@
+import datetime as dt
+
 from flask import (
-    Blueprint, flash, g, json, jsonify, redirect, render_template, 
-    request, url_for
+    Blueprint, current_app, flash, g, json, jsonify, redirect, 
+    render_template, request, url_for
 )
 from flask_login import (
     current_user,
@@ -8,6 +10,8 @@ from flask_login import (
     login_user,
     logout_user,
 )
+
+from elasticsearch import helpers 
 from psycopg2 import errors 
 from slugify import slugify
 from werkzeug.exceptions import abort, BadRequestKeyError
@@ -25,27 +29,33 @@ def index(page=None):
         page = 1
     PAGINATION_SIZE = 3
     db = get_db()
-    db.execute(
-        'SELECT count(p.id) row_count, min(p.id) min_id FROM post p'
-        )
+    db.execute("""
+        SELECT count(p.id) row_count, min(p.id) min_id
+        FROM post p;
+        """)
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
     page_from = count - ((page - 1) * PAGINATION_SIZE)
     db.execute("""
         SELECT p.id, title, body, created, author_id, username, 
-            pt.tags, pt.tag_slugs 
+            pt.tags, pt.tag_slugs
          FROM post p
+         JOIN (
+             SELECT p2.id, ROW_NUMBER() OVER () rownum
+             FROM post p2
+         ) p2
+         ON p2.id = p.id 
          JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
-            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
-                string_agg(t.slug, ' ') tag_slugs
-            FROM tag t
-                JOIN post_tag pt
-                ON pt.tag_id = t.id
-            GROUP BY pt.post_id
+             SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                 string_agg(t.slug, ' ') tag_slugs
+             FROM tag t
+                 JOIN post_tag pt
+                 ON pt.tag_id = t.id
+             GROUP BY pt.post_id
          ) pt
          ON pt.post_id = p.id
-         WHERE p.id <= %s
+         WHERE p2.rownum <= %s
          ORDER BY created DESC
          FETCH FIRST %s ROWS ONLY;""",
         (page_from,PAGINATION_SIZE,)
@@ -64,6 +74,86 @@ def index(page=None):
         
     return render_template('blog/index.html',posts=posts,page=page,
         PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
+
+@bp.route('/fts',defaults={'page':1})
+@bp.route('/fts/<search_slug>/page/<int:page>')
+def fts(page=None,search_slug=None):
+    if not page:
+        page = 1
+    PAGINATION_SIZE = 3
+    search = request.args.get('autocomplete')
+    print(search)
+    if not search:
+        search = search_slug
+    else:
+        search = slugify(search)
+    # begin fts 
+    query = {
+        "query": {
+            "multi_match": {
+                "query": search,
+                "fields": ["text", "title", "tags"]
+            }
+        }
+    }
+    results = current_app.es.search(index="blog-index", 
+                                    #doc_type="post", 
+                                    body=query)
+    scan = helpers.scan(current_app.es,query=query,scroll='1m',
+                        index='blog-index')
+    ids = tuple(sorted(scan_result['_id'] for scan_result in scan))
+    if len(ids) == 0:
+        abort(404,f"No posts with {search} in either body or title.")
+    # end fts 
+    placeholders = ",".join(["%s" for id in ids])
+    qry = f"""
+        SELECT count(p.id) row_count, min(p.id) min_id 
+        FROM post p
+        WHERE p.id in ({placeholders});
+        """
+    db = get_db()
+    db.execute(qry,ids) # ids is a tuple
+    result = db.fetchone()
+    count, min_id = result['row_count'], result['min_id']
+    page_from = count - ((page - 1) * PAGINATION_SIZE)
+    qry = f"""
+        SELECT p.id, title, body, created, author_id, username, 
+            pt.tags, pt.tag_slugs 
+         FROM post p
+         JOIN (
+             SELECT p2.id, ROW_NUMBER() OVER () rownum
+             FROM post p2
+             WHERE p2.id IN ({placeholders})
+         ) p2
+         ON p2.id = p.id 
+         JOIN usr u ON p.author_id = u.id
+         LEFT JOIN (
+            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                string_agg(t.slug, ' ') tag_slugs
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            GROUP BY pt.post_id
+         ) pt
+         ON pt.post_id = p.id
+         WHERE p2.rownum <= %s AND p.id IN ({placeholders})
+         ORDER BY created DESC
+         FETCH FIRST %s ROWS ONLY;"""
+    db.execute(qry,ids+(page_from,)+ids+(PAGINATION_SIZE,))
+    posts = db.fetchall()
+    try:
+        if posts[-1]['id'] == min_id:
+            last_post = True
+        else:
+            last_post = False
+    except IndexError:
+        last_post = True
+    
+    search_slug = slugify(search)
+    
+    return render_template('blog/index.html',posts=posts,page=page,
+        PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post,
+        search_slug=search_slug)
 
 @bp.route('/create', methods=('GET', 'POST',))
 @login_required
@@ -109,6 +199,20 @@ def create():
                 ' VALUES (%s,%s);',
                 list(zip([post_id]*len(tag_ids),tag_ids))
             )
+            # begin elasticsearch
+            doc = {
+                    'author': g.user['id'],
+                    'text': body,
+                    'title': title,
+                    'tags': " ".join(tag_slugs),
+                    'timestamp': dt.datetime.now()
+                }
+            result = current_app.es.index(index="blog-index", 
+                                          doc_type='post', 
+                                          id=post_id, 
+                                          body=doc)
+            current_app.es.indices.refresh(index='blog-index')
+            # end elasticsearch
             return redirect(url_for('blog.index'))
 
     return render_template('blog/create.html')
@@ -238,6 +342,20 @@ def update(id):
                 ' VALUES (%s,%s);',
                 list(zip([id]*len(tag_ids),tag_ids))
             )
+            # begin elasticsearch
+            doc = {
+                    'author': g.user['id'],
+                    'text': body,
+                    'title': title,
+                    'tags': " ".join(tag_slugs),
+                    'timestamp': dt.datetime.now()
+                }
+            result = current_app.es.index(index="blog-index", 
+                                          doc_type='post', 
+                                          id=id, 
+                                          body=doc)
+            current_app.es.indices.refresh(index='blog-index')
+            # end elasticsearch
             return redirect(url_for('blog.index'))
 
     return render_template('blog/update.html', post=post)
@@ -252,10 +370,22 @@ def tag(page=None,tag_slug=None):
     if not tag_slug:
         tag_slug = request.args.get('autocomplete')
     
+    tag_slug = tag_slug.strip()
+    
     db = get_db()
-    db.execute(
-        'SELECT count(p.id) row_count, min(p.id) min_id FROM post p'
-        )
+    db.execute("""
+        SELECT count(distinct p.id) row_count, min(p.id) min_id 
+        FROM post p
+        JOIN (
+            SELECT pt.post_id 
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            WHERE t.slug = %s
+            GROUP BY pt.post_id
+        ) pt
+        ON pt.post_id = p.id
+        """,(tag_slug,))
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
     page_from = count - ((page - 1) * PAGINATION_SIZE)
@@ -263,6 +393,20 @@ def tag(page=None,tag_slug=None):
         SELECT p.id, title, body, created, author_id, username, 
                pt.tags, pt.tag_slugs, pt_addl.addl_tags, pt_addl.addl_tag_slugs
          FROM post p
+         JOIN (
+             SELECT p2.id, ROW_NUMBER() OVER () rownum
+             FROM post p2
+             JOIN (
+                SELECT pt.post_id 
+                FROM tag t
+                    JOIN post_tag pt
+                    ON pt.tag_id = t.id
+                WHERE t.slug = %s
+                GROUP BY pt.post_id
+             ) pt
+             ON pt.post_id = p2.id
+         ) p2
+         ON p2.id = p.id 
          JOIN usr u ON p.author_id = u.id
          JOIN (
             SELECT pt.post_id, string_agg(t.title, ' ') tags, 
@@ -284,10 +428,10 @@ def tag(page=None,tag_slug=None):
             GROUP BY pt.post_id
          ) pt_addl
          ON pt_addl.post_id = p.id
-         WHERE p.id <= %s
+         WHERE p2.rownum <= %s
          ORDER BY created DESC
          FETCH FIRST %s ROWS ONLY;""",
-        (tag_slug,tag_slug,page_from,PAGINATION_SIZE,)
+        (tag_slug,tag_slug,tag_slug,page_from,PAGINATION_SIZE,)
     )
     posts = db.fetchall()
     try:
@@ -320,17 +464,28 @@ def comment_delete(id):
 def autocomplete():
     search = request.args.get('q')
     
-    db = get_db()
-    db.execute('''
-        SELECT title 
-        FROM tag 
-        WHERE slug like %s
-        ORDER by title;''',
-        ('%' + search + '%',)
-        )
-    tags = [t['title'] for t in db.fetchall()]
-    
-    return jsonify(matching_results=tags) 
+    # ~ db = get_db()
+    # ~ db.execute('''
+        # ~ SELECT title 
+        # ~ FROM tag 
+        # ~ WHERE slug like %s
+        # ~ ORDER by title;''',
+        # ~ ('%' + search + '%',)
+        # ~ )
+    # ~ tags = [t['title'] for t in db.fetchall()]
+    doc = {
+        "query": {
+            "multi_match": {
+                "query": search,
+                "fields": ["text", "title", "tags"]
+            }
+        }
+    }
+    results = current_app.es.search(index="blog-index", 
+                                    #doc_type="post", 
+                                    body=doc)
+    # ~ return jsonify(matching_results=tags)
+    return jsonify(matching_results=results['hits']['hits'])
 
 @bp.route('/privacy_policy')
 def privacy_policy():

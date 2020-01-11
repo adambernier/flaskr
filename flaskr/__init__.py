@@ -8,6 +8,8 @@ from flask_login import LoginManager
 #from flask_misaka import Misaka
 from flaskext.markdown import Markdown 
 
+from elasticsearch import Elasticsearch
+
 from .auth import User
 
 def create_app(test_config=None):
@@ -15,6 +17,7 @@ def create_app(test_config=None):
     
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True, static_folder='static')
+    app.es = Elasticsearch([os.environ.get('SEARCHBOX_SSL_URL')])
     app.jinja_env.filters['zip'] = zip
     #app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0 # cache issue
     
