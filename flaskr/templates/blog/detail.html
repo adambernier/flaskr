@@ -14,7 +14,6 @@
       {% if g.user['id'] == post['author_id'] %}
         <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
       {% endif %}
-      <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
     </header>
     {{ post['body']|markdown }}
     tags: 
