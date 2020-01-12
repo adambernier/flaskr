@@ -27,6 +27,7 @@
       <a href="/page/{{ page + 1 }}" style="float:right;">Less-recent posts &gt;&gt;</a>
     {% endif %}
   {% endif %}
+  <hr>
   </nav>
   &nbsp;
   
@@ -38,7 +39,7 @@
           <div class="about">by <a href="{{ url_for('about.me', id=post['author_id']) }}">{{ post['username'] }}</a> on {{ post['created'].strftime('%Y-%m-%d') }}</div>
         </div>
         {% if g.user['id'] == post['author_id'] %}
-          <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+          <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit Post</a>
         {% endif %}
       </header>
       {{ post['body']|markdown }}

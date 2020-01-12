@@ -1,5 +1,5 @@
 html {
-  font-family: sans-serif;
+  /*font-family: sans-serif;*/
   background: #eee;
   padding: 1rem;
 }
@@ -16,7 +16,7 @@ body {
   margin: 1rem 0;
 }*/
 
-h1 {
+/*h1 {
     font-size: 2.5rem;
 }
 
@@ -38,22 +38,22 @@ h5 {
 
 h6 {
     font-size: 1.25rem;
-}
+}*/
 
-a {
+/*a {
   color: #377ba8;
-}
+}*/
 
-hr {
+/*hr {
   border: none;
   border-top: 1px solid lightgray;
-}
+}*/
 
 nav {
   background: lightgray;
   display: flex;
-  align-items: center;
-  padding: 0 0.5rem;
+  /*align-items: left;*/
+  /*padding: 0 0.5rem;*/
 }
 
 nav h1 {
@@ -86,11 +86,11 @@ nav ul li a, nav ul li span, header .action {
   padding: 0 1rem 1rem;
 }
 
-.content > header {
+/*.content > header {
   border-bottom: 1px solid lightgray;
   display: flex;
   align-items: flex-end;
-}
+}*/
 
 .content > header h1 {
   flex: auto;
@@ -104,55 +104,55 @@ nav ul li a, nav ul li span, header .action {
   border: 1px solid #377ba8;
 }
 
-.post > header {
+/*.post > header {
   display: flex;
   align-items: flex-end;
   font-size: 0.85em;
-}
+}*/
 
-.post > header > div:first-of-type {
+/*.post > header > div:first-of-type {
   flex: auto;
-}
+}*/
 
-.post > header h1 {
+/*.post > header h1 {
   font-size: 1.5em;
   margin-bottom: 0;
-}
+}*/
 
 .post .about {
-  color: slategray;
+  /*color: slategray;*/
   font-style: italic;
 }
 
-.post .body {
+/*.post .body {
   white-space: pre-line;
-}
+}*/
 
-.content:last-child {
+/*.content:last-child {
   margin-bottom: 0;
-}
+}*/
 
-.content form {
+/*.content form {
   margin: 1em 0;
   display: flex;
   flex-direction: column;
-}
+}*/
 
-.content label {
+/*.content label {
   font-weight: bold;
   margin-bottom: 0.5em;
-}
+}*/
 
-.content input, .content textarea {
+/*.content input, .content textarea {
   margin-bottom: 1em;
-}
+}*/
 
-.content textarea {
+/*.content textarea {
   min-height: 12em;
   resize: vertical;
-}
+}*/
 
-pre {
+/*pre {
     background: #f4f4f4;
     border: 1px solid #ddd;
     border-left: 3px solid #f36d33;
@@ -167,16 +167,17 @@ pre {
     padding: 1em 1.5em;
     display: block;
     word-wrap: break-word;
-}
+}*/
 
 input.danger {
   color: #cc2f2e;
+  width: 75px;
 }
 
-input[type=submit] {
+/*input[type=submit] {
   align-self: start;
   min-width: 10em;
-}
+}*/
 /*
 @media (min-width: 858px) {
     html {
