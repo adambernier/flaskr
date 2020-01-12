@@ -484,6 +484,7 @@ def autocomplete():
         # ~ ('%' + search + '%',)
         # ~ )
     # ~ tags = [t['slug'] for t in db.fetchall()]
+    
     doc = {
         "query": {
             "multi_match": {
