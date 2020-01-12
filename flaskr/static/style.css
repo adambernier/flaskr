@@ -88,6 +88,18 @@ nav ul li a, nav ul li span, header .action {
   padding: 0 0.5rem;
 }
 
+ul{
+  margin-left:10px;
+}
+
+ul ul{
+  margin-left:15px;
+}
+
+ul ul ul{
+  margin-left:20px;
+}
+
 /*p {
     font-size: 1.5rem;
 }*/
