@@ -12,13 +12,25 @@
   gtag('config', 'UA-16291963-4');
 </script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.js">
 <!-- include libraries(jQuery, bootstrap) -->
-<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+<!-- Latest compiled and minified CSS -->
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+<!-- Latest compiled and minified JavaScript -->
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
+<!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">-->
 <!--<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>-->
 <link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
+<!--<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>-->
 <!--<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>-->
 
 <link rel="stylesheet" href="{{ url_for('static', filename='zenburn.css') }}">
@@ -37,8 +49,9 @@ $(function() {
     $("#autocomplete").autocomplete({
         source: function(request, response) {
             $.getJSON("{{ url_for('blog.autocomplete') }}",{
-                q: request.term, // in flask, "q" is argument to look for using request.args
+                q: request.term, // in flask, look for "q" using request.args
             }, function(data) {
+                console.log(data.matching_results);
                 response(data.matching_results); // matching_results from jsonify
             });
         },
@@ -54,20 +67,20 @@ $(function() {
 <body>
   <nav>
     <h1><a class="action" href="{{ url_for('blog.index') }}">This Is A Blog</a></h1>
-    <ul>
       {% if g.user %}
-        <li><a href="{{ url_for('about.me', id=g.user['id']) }}">{{ g.user['username'] }}</a>
-        <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+        <a href="{{ url_for('about.me', id=g.user['id']) }}">{{ g.user['username'] }}</a>
+        <a href="{{ url_for('auth.logout') }}">Log Out</a>
       {% else %}
-        <li><a href="{{ url_for('auth.login') }}">Log In</a>
+        <a href="{{ url_for('auth.login') }}">Log In</a>
       {% endif %}
-    </ul>
   </nav>
   <div>
     <form action="{{ url_for('blog.fts', page=1) }}" method="GET">
-      <label for="autocomplete">Search: </label>
-      <input name="autocomplete" type="text" id="autocomplete"/>
-      <button class="btn-submit" id="go-btn">Go</button>
+      <ul>
+        <label for="autocomplete">Search:</label>
+        <input class="form-control" type="search" name="autocomplete" type="text" id="autocomplete" style="width: 150px;"/>
+        <button class="btn btn-secondary" id="go-btn">Go</button>
+      </ul>
     </form>
   </div>
   <section class="content">

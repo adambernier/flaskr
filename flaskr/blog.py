@@ -483,18 +483,32 @@ def autocomplete():
         # ~ ORDER by title;''',
         # ~ ('%' + search + '%',)
         # ~ )
-    # ~ tags = [t['title'] for t in db.fetchall()]
+    # ~ tags = [t['slug'] for t in db.fetchall()]
     doc = {
         "query": {
             "multi_match": {
                 "query": search,
                 "fields": ["text", "title", "tags"]
+                }
             }
         }
-    }
+    # ~ doc = {
+        # ~ "suggest": {
+            # ~ "a-suggestion" : {
+                # ~ "prefix" : search,
+                # ~ "completion" : {
+                    # ~ "field" : "text"
+                # ~ }
+            # ~ }
+        # ~ }
+    # ~ }
     results = current_app.es.search(index="blog-index", 
-                                    #doc_type="post", 
                                     body=doc)
+    # ~ hits = []
+    # ~ for hit in results['suggest']['a-suggestion']:
+        # ~ hits.append(hit['text']['text'])
+    # ~ print(hits)
+    # ~ return jsonify(matching_results=hits)
     # ~ return jsonify(matching_results=tags)
     return jsonify(matching_results=results['hits']['hits'])
 
