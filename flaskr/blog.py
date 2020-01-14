@@ -215,7 +215,7 @@ def create():
                     'author': g.user['id'],
                     'text': body,
                     'title': title,
-                    'tags': " ".join(tag_slugs),
+                    'tags': [tag_slug for tag_slug in tag_slugs],
                     'timestamp': dt.datetime.now()
                 }
             result = current_app.es.index(index="blog-index", 
@@ -357,12 +357,12 @@ def update(id):
             doc = {
                     'author': g.user['id'],
                     'text': body,
-                    'title': title,
-                    'tags': " ".join(tag_slugs),
+                    'title': [word for word in title],
+                    'tags': [tag_slug for tag_slug in tag_slugs],
                     'timestamp': dt.datetime.now()
                 }
             result = current_app.es.index(index="blog-index", 
-                                          doc_type='post', 
+                                          #doc_type='post', 
                                           id=id, 
                                           body=doc)
             current_app.es.indices.refresh(index='blog-index')
@@ -496,21 +496,35 @@ def autocomplete():
     # ~ doc = {
         # ~ "suggest": {
             # ~ "a-suggestion" : {
-                # ~ "prefix" : search,
+                # ~ "text" : search,
+                # ~ "completion" : {
+                    # ~ "field" : "tags"
+                # ~ }
+            # ~ },
+            # ~ "b-suggestion" : {
+                # ~ "text" : search,
                 # ~ "completion" : {
                     # ~ "field" : "text"
+                # ~ }
+            # ~ },
+            # ~ "c-suggestion" : {
+                # ~ "text" : search,
+                # ~ "completion" : {
+                    # ~ "field" : "title"
                 # ~ }
             # ~ }
         # ~ }
     # ~ }
     results = current_app.es.search(index="blog-index", 
                                     body=doc)
-    # ~ hits = []
-    # ~ for hit in results['suggest']['a-suggestion']:
-        # ~ hits.append(hit['text']['text'])
-    # ~ print(hits)
-    # ~ return jsonify(matching_results=hits)
-    # ~ return jsonify(matching_results=tags)
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    # ~ matching_results = []
+    # ~ try:
+        # ~ matching_results.append(results['suggest']['a-suggestion'][0]['options'][0]['text'])
+        # ~ matching_results.append(results['suggest']['b-suggestion'][0]['options'][0]['text'])
+        # ~ matching_results.append(results['suggest']['c-suggestion'][0]['options'][0]['text'])
+    # ~ except IndexError:
+        # ~ pass 
     return jsonify(matching_results=results['hits']['hits'])
 
 @bp.route('/privacy_policy')

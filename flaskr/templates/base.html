@@ -12,32 +12,22 @@
   gtag('config', 'UA-16291963-4');
 </script>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!--<link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="stylesheet">-->
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.js">
-<!-- include libraries(jQuery, bootstrap) -->
-<!-- Latest compiled and minified CSS -->
-<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
-<!-- Latest compiled and minified JavaScript -->
-<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
-<!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">-->
-<!--<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">-->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>-->
-<link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet">
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<!--<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>-->
-<!--<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>-->
-
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.js"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='zenburn.css') }}">
 <!--<link rel="stylesheet"
       href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/styles/default.min.css">-->
 <!--<script src="{{ url_for('static', filename='highlight.js') }}"></script>-->
-<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 <!-- include summernote css/js -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
@@ -45,20 +35,23 @@
 <script src="{{ url_for('static', filename='summernote-ext-highlight.js') }}"></script>
 <!--<script data-ad-client="ca-pub-6493540194967906" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>-->
 <script>
-$(function() {
-    $("#autocomplete").autocomplete({
-        source: function(request, response) {
-            $.getJSON("{{ url_for('blog.autocomplete') }}",{
-                q: request.term, // in flask, look for "q" using request.args
-            }, function(data) {
-                console.log(data.matching_results);
-                response(data.matching_results); // matching_results from jsonify
-            });
-        },
-        minLength: 3,
-        select: function(event, ui) {
-            console.log(ui.item.value); 
-        }
+$(document).ready(function() {
+    $(function() {
+        $("#autocomplete").autocomplete({
+            minLength: 2,
+            source: function(request, response) {
+                $.getJSON("{{url_for('blog.autocomplete')}}",{
+                    q: request.term, 
+                }, function(data) {
+                    console.log(data.matching_results);
+                    response(data.matching_results); 
+                });
+            },
+            select: function(event, ui) {
+                console.log(ui.item.value); // not in your question, but might help later
+                //alert(ui.item.value);
+            }
+        });
     });
 });
 </script>
@@ -66,7 +59,7 @@ $(function() {
 </head>
 <body>
   <nav>
-    <h1><a class="action" href="{{ url_for('blog.index') }}">This Is A Blog</a></h1>
+    <h1><a class="action" href="{{ url_for('blog.index') }}">This Is A Multi-Tenant Blog</a></h1>
       {% if g.user %}
         <a href="{{ url_for('about.me', id=g.user['id']) }}">{{ g.user['username'] }}</a>
         <a href="{{ url_for('auth.logout') }}">Log Out</a>
