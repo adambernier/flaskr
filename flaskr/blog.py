@@ -514,7 +514,8 @@ def autocomplete():
     #print(json.dumps(results, indent=4, sort_keys=True))
     matching_results = []
     try:
-        matching_results.append(results['suggest']['tag-suggestion'][0]['options'][0]['text'])
+        for matching_result in results['suggest']['tag-suggestion'][0]['options']:
+            matching_results.append(matching_result['text'])
     except IndexError:
         pass 
     
