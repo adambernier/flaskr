@@ -102,7 +102,7 @@ def fts(page=None,search_slug=None):
         "query": {
             "multi_match": {
                 "query": search,
-                "fields": ["text", "title", "tags"]
+                "fields": ["post_body", "post_title", "post_tags"]
             }
         }
     }
@@ -211,12 +211,15 @@ def create():
                 list(zip([post_id]*len(tag_ids),tag_ids))
             )
             # begin elasticsearch
+            suggest = [word for word in title.split()]
+            suggest += [tag_slug for tag_slug in tag_slugs],
             doc = {
-                    'author': g.user['id'],
-                    'text': body,
-                    'title': title,
-                    'tags': [tag_slug for tag_slug in tag_slugs],
-                    'timestamp': dt.datetime.now()
+                    'post_author': g.user['id'],
+                    'post_body': body,
+                    'post_title': [word for word in title.split()],
+                    'post_tags': [tag_slug for tag_slug in tag_slugs],
+                    'post_timestamp': dt.datetime.now(),
+                    'suggest': suggest,
                 }
             result = current_app.es.index(index="blog-index", 
                                           doc_type='post', 
@@ -354,12 +357,15 @@ def update(id):
                 list(zip([id]*len(tag_ids),tag_ids))
             )
             # begin elasticsearch
+            suggest = [word for word in title.split()]
+            suggest += [tag_slug for tag_slug in tag_slugs],
             doc = {
-                    'author': g.user['id'],
-                    'text': body,
-                    'title': [word for word in title],
-                    'tags': [tag_slug for tag_slug in tag_slugs],
-                    'timestamp': dt.datetime.now()
+                    'post_author': g.user['id'],
+                    'post_body': body,
+                    'post_title': [word for word in title.split()],
+                    'post_tags': [tag_slug for tag_slug in tag_slugs],
+                    'post_timestamp': dt.datetime.now(),
+                    'suggest': suggest,
                 }
             result = current_app.es.index(index="blog-index", 
                                           #doc_type='post', 
@@ -485,47 +491,34 @@ def autocomplete():
         # ~ )
     # ~ tags = [t['slug'] for t in db.fetchall()]
     
-    doc = {
-        "query": {
-            "multi_match": {
-                "query": search,
-                "fields": ["text", "title", "tags"]
-                }
-            }
-        }
+    # this is regular search
     # ~ doc = {
-        # ~ "suggest": {
-            # ~ "a-suggestion" : {
-                # ~ "text" : search,
-                # ~ "completion" : {
-                    # ~ "field" : "tags"
-                # ~ }
-            # ~ },
-            # ~ "b-suggestion" : {
-                # ~ "text" : search,
-                # ~ "completion" : {
-                    # ~ "field" : "text"
-                # ~ }
-            # ~ },
-            # ~ "c-suggestion" : {
-                # ~ "text" : search,
-                # ~ "completion" : {
-                    # ~ "field" : "title"
+        # ~ "query": {
+            # ~ "multi_match": {
+                # ~ "query": search,
+                # ~ "fields": ["text", "title", "tags"]
                 # ~ }
             # ~ }
         # ~ }
-    # ~ }
-    results = current_app.es.search(index="blog-index", 
-                                    body=doc)
+    doc = {
+        "suggest": {
+            "tag-suggestion" : {
+                "prefix" : search, 
+                "completion" : { 
+                    "field" : "suggest" 
+                }
+            }
+        }
+    }
+    results = current_app.es.search(index="blog-index",body=doc)
     #print(json.dumps(results, indent=4, sort_keys=True))
-    # ~ matching_results = []
-    # ~ try:
-        # ~ matching_results.append(results['suggest']['a-suggestion'][0]['options'][0]['text'])
-        # ~ matching_results.append(results['suggest']['b-suggestion'][0]['options'][0]['text'])
-        # ~ matching_results.append(results['suggest']['c-suggestion'][0]['options'][0]['text'])
-    # ~ except IndexError:
-        # ~ pass 
-    return jsonify(matching_results=results['hits']['hits'])
+    matching_results = []
+    try:
+        matching_results.append(results['suggest']['tag-suggestion'][0]['options'][0]['text'])
+    except IndexError:
+        pass 
+    
+    return jsonify(matching_results=matching_results)
 
 @bp.route('/privacy_policy')
 def privacy_policy():
