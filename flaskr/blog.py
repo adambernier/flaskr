@@ -222,7 +222,7 @@ def create():
                     'suggest': suggest,
                 }
             result = current_app.es.index(index="blog-index", 
-                                          doc_type='post', 
+                                          #doc_type='post', 
                                           id=post_id, 
                                           body=doc)
             current_app.es.indices.refresh(index='blog-index')
