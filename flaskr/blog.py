@@ -212,7 +212,7 @@ def create():
             )
             # begin elasticsearch
             suggest = [word for word in title.split()]
-            suggest += [tag_slug for tag_slug in tag_slugs],
+            suggest += [tag_slug for tag_slug in tag_slugs]
             doc = {
                     'post_author': g.user['id'],
                     'post_body': body,
@@ -358,7 +358,7 @@ def update(id):
             )
             # begin elasticsearch
             suggest = [word for word in title.split()]
-            suggest += [tag_slug for tag_slug in tag_slugs],
+            suggest += [tag_slug for tag_slug in tag_slugs]
             doc = {
                     'post_author': g.user['id'],
                     'post_body': body,
