@@ -148,6 +148,7 @@ def callback():
         picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
         family_name = userinfo_response.json()["family_name"]
+        role_id = 1 # default 
     else:
         return "User email not available or not verified by Google.", 400
         
@@ -155,12 +156,13 @@ def callback():
     # by Google
     user = User(
         id_=unique_id, username=users_name, email=users_email, 
-        profile_pic=picture, familyname=family_name
+        profile_pic=picture, familyname=family_name, role_id=role_id
     )
 
     # Doesn't exist? Add it to the database.
     if not User.get(unique_id):
-        User.create(unique_id, users_name, users_email, picture, family_name)
+        User.create(unique_id, users_name, users_email, picture, 
+                    family_name, role_id)
 
     # Begin user session by logging the user in
     login_user(user)
@@ -230,12 +232,13 @@ def logout():
     return redirect(url_for("index"))
 
 class User(UserMixin):
-    def __init__(self, id_, username, email, profile_pic, familyname):
+    def __init__(self, id_, username, email, profile_pic, familyname, role_id):
         self.id = id_
         self.username = username
         self.email = email
         self.profile_pic = profile_pic
         self.familyname = familyname
+        self.role_id = role_id
 
     @staticmethod
     def get(user_id):
@@ -257,18 +260,21 @@ class User(UserMixin):
             username=user['username'], 
             email=user['email'], 
             profile_pic=user['profile_pic'],
-            familyname=user['familyname']
+            familyname=user['familyname'],
+            role_id=user['role_id']
         )
         return user
 
     @staticmethod
-    def create(id_, username, email, profile_pic, familyname):
+    def create(id_, username, email, profile_pic, familyname, role_id):
         username_slug = slugify(username)
         
         db = get_db()
         db.execute("""
             INSERT INTO usr 
-                (id, username, email, profile_pic, username_slug, familyname) 
-            VALUES (%s,%s,%s,%s,%s,%s);""",
-            (id_, username, email, profile_pic, username_slug, familyname),
+                (id, username, email, profile_pic, username_slug, 
+                 familyname, role_id) 
+            VALUES (%s,%s,%s,%s,%s,%s,%s);""",
+            (id_, username, email, profile_pic, username_slug, 
+             familyname, role_id),
         )

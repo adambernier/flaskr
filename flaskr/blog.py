@@ -47,7 +47,7 @@ def index(page=None):
     count, min_id = result['row_count'], result['min_id']
     offset = (page - 1) * PAGINATION_SIZE 
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, 
+        SELECT p.id, title, body, created, author_id, username, role_id,
             pt.tags, pt.tag_slugs
          FROM post p
          JOIN (
@@ -81,6 +81,9 @@ def index(page=None):
         
     if current_user.is_authenticated:
         g.user = current_user
+        #db.execute('SELECT role_id FROM usr WHERE id = %s;',
+        #           (g.user['id'],))
+        #user = db.fetchone()
         
     return render_template('blog/index.html',posts=posts,page=page,
         PAGINATION_SIZE=PAGINATION_SIZE,last_post=last_post)
@@ -127,7 +130,7 @@ def fts(page=None,search_slug=None):
     count, min_id = result['row_count'], result['min_id']
     
     qry = f"""
-        SELECT p.id, title, body, created, author_id, username, 
+        SELECT p.id, title, body, created, author_id, username, role_id,
             pt.tags, pt.tag_slugs 
          FROM post p
          JOIN (
@@ -248,7 +251,7 @@ def create_comment():
 
 def get_post(id, check_author=True):
     get_db().execute("""
-        SELECT p.id, title, body, created, author_id, username, 
+        SELECT p.id, title, body, created, author_id, username, role_id,
             thank_count, pt.tags, pt.tag_slugs 
          FROM post p JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
@@ -407,7 +410,7 @@ def tag(page=None,tag_slug=None):
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, 
+        SELECT p.id, title, body, created, author_id, username, role_id,
                pt.tags, pt.tag_slugs, pt_addl.addl_tags, pt_addl.addl_tag_slugs
          FROM post p
          JOIN (

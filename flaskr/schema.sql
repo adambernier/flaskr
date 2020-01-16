@@ -16,7 +16,8 @@ CREATE TABLE usr (
   profile_pic TEXT NOT NULL,
   about TEXT,
   username_slug TEXT,
-  familyname TEXT
+  familyname TEXT,
+  role_id INTEGER
 );
 
 CREATE TABLE post (

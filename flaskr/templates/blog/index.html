@@ -38,7 +38,7 @@
           <h2><a class="action" href="{{ url_for('blog.detail', id=post['id']) }}">{{ post['title'] }}</a></h2>
           <div class="about">by <a href="{{ url_for('about.me', id=post['author_id']) }}">{{ post['username'] }}</a> on {{ post['created'].strftime('%Y-%m-%d') }}</div>
         </div>
-        {% if g.user['id'] == post['author_id'] %}
+        {% if g.user['id'] == post['author_id'] or g.user['role_id'] == 2 %}
           <a class="action" href="{{ url_for('blog.update', id=post['id']) }}" style="float:right;">Edit Post</a>
         {% endif %}
       </header>
