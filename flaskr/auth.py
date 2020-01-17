@@ -148,7 +148,7 @@ def callback():
         picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
         family_name = userinfo_response.json()["family_name"]
-        role_id = 1 # default 
+        role_id = 0 # default: 0, superuser: 1, admin: 2
     else:
         return "User email not available or not verified by Google.", 400
         
