@@ -1,1 +1,1 @@
-web: python3 flaskr/__init__.py
+web: waitress-serve flaskr.wsgi:app
