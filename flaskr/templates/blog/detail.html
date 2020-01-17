@@ -1,10 +1,30 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <a class="action" href="{{ url_for('blog.index') }}">Back to home</a>
+{% block head %}
+  {{ super() }}
+  <script>
+    $(document).ready(function() {
+        $("#click-btn").on('click touchstart', function() {
+            $.ajax({
+                url: "{{ url_for('blog.thank', id=post['id']) }}",
+                method: "POST",
+                contentType: "application/json;charset=UTF-8",
+                data: {'postid': $('#click-btn').data('data-postid')},
+                success: function(response) {
+                    console.log(response);
+                    $('#click-response').replaceWith(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+    });
+  </script>
 {% endblock %}
 
 {% block content %}
+  <a class="action" href="{{ url_for('blog.index') }}">Back to home</a>
   <article class="post">
     <header>
       <div>
@@ -63,27 +83,5 @@
     </div>
   </form>
 {% endif %}
-
-  {% block javascript %}
-    <script>
-    $(document).ready(function() {
-        $("#click-btn").on('click touchstart', function() {
-            $.ajax({
-                url: "{{ url_for('blog.thank', id=post['id']) }}",
-                method: "POST",
-                contentType: "application/json;charset=UTF-8",
-                data: {'postid': $('#click-btn').data('data-postid')},
-                success: function(response) {
-                    console.log(response);
-                    $('#click-response').replaceWith(response);
-                },
-                error: function(xhr) {
-                    console.log(xhr);
-                }
-            });
-        });
-    });
-    </script>
-  {% endblock %}
 
 {% endblock %}

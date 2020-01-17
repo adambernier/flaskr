@@ -1,61 +1,56 @@
 <!doctype html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-16291963-4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-16291963-4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'UA-16291963-4');
-</script>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<!--<link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="stylesheet">-->
-<script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
-<!--<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>-->
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='zenburn.css') }}">
-<!--<link rel="stylesheet"
-      href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/styles/default.min.css">-->
-<!--<script src="{{ url_for('static', filename='highlight.js') }}"></script>-->
-<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-<!-- include summernote css/js -->
-<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">-->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>-->
-<script src="{{ url_for('static', filename='summernote-ext-highlight.js') }}"></script>
-<!--<script data-ad-client="ca-pub-6493540194967906" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>-->
-<script>
-$(document).ready(function() {
-    $(function() {
-        $("#autocomplete").autocomplete({
-            minLength: 2,
-            source: function(request, response) {
-                $.getJSON("{{url_for('blog.autocomplete')}}",{
-                    q: request.term, 
-                }, function(data) {
-                    console.log(data.matching_results);
-                    response(data.matching_results); 
-                });
-            },
-            select: function(event, ui) {
-                console.log(ui.item.value); // not in your question, but might help later
-                //alert(ui.item.value);
-            }
+      gtag('config', 'UA-16291963-4');
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!--<link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="stylesheet">-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='zenburn.css') }}">
+    <!--<link rel="stylesheet"
+          href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/styles/default.min.css">-->
+    <!--<script src="{{ url_for('static', filename='highlight.js') }}"></script>-->
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.0/build/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>-->
+    <!--<script data-ad-client="ca-pub-6493540194967906" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>-->
+    <script>
+    $(document).ready(function() {
+        $(function() {
+            $("#autocomplete").autocomplete({
+                minLength: 2,
+                source: function(request, response) {
+                    $.getJSON("{{url_for('blog.autocomplete')}}",{
+                        q: request.term, 
+                    }, function(data) {
+                        console.log(data.matching_results);
+                        response(data.matching_results); 
+                    });
+                },
+                select: function(event, ui) {
+                    console.log(ui.item.value); // not in your question, but might help later
+                    //alert(ui.item.value);
+                }
+            });
         });
     });
-});
-</script>
-<title>{% block title %}{% endblock %}</title>
+    </script>
+    <title>{% block title %}{% endblock %}</title>
+  {% endblock %}
 </head>
 <body>
   <nav>
