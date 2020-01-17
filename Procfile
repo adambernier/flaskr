@@ -1,1 +1,1 @@
-web: waitress-serve flaskr.wsgi:app
+web: waitress-serve --port=$PORT --url-scheme=https app:app
