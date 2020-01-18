@@ -74,14 +74,20 @@
       {% endif %}
   </nav>
   <div>
-    <form action="{{ url_for('blog.fts', page=1) }}" method="GET">
-      <input class="form-control" name="autocomplete" type="text" id="autocomplete" style="width: 150px;"/>
-      <button class="btn btn-secondary" id="go-btn">Go</button>
+    <form action="{{ url_for('blog.fts', page=1) }}" method="GET" class="form-inline">
+      <div class="form-group">
+      <div clss="input-group">
+        <input class="form-control" name="autocomplete" type="text" id="autocomplete" style="width: 150px;"/>
+        <span class="input-group-btn">
+          <button class="btn btn-secondary" id="go-btn">Go!</button>
+        </span>
+      </div>
+      </div>
     </form>
   </div>
   <section class="content">
     <header>
-      <h2>{% block header %}Blog posts{% endblock %}</h2>
+      <h2>{% block header %}Blog post titles (3 per page){% endblock %}</h2>
     </header>
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
