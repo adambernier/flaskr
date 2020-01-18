@@ -60,7 +60,7 @@
         });
     });
     </script>
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}Mechanical Meat{% endblock %}</title>
   {% endblock %}
 </head>
 <body>
@@ -75,14 +75,13 @@
   </nav>
   <div>
     <form action="{{ url_for('blog.fts', page=1) }}" method="GET">
-      <label for="autocomplete">Search:</label>
       <input class="form-control" name="autocomplete" type="text" id="autocomplete" style="width: 150px;"/>
       <button class="btn btn-secondary" id="go-btn">Go</button>
     </form>
   </div>
   <section class="content">
     <header>
-      <h2>{% block header %}{% endblock %}</h2>
+      <h2>{% block header %}Blog posts{% endblock %}</h2>
     </header>
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
