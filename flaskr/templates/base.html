@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   {% block head %}
@@ -75,16 +75,14 @@
   </nav>
   <div>
     <form action="{{ url_for('blog.fts', page=1) }}" method="GET">
-      <ul>
-        <label for="autocomplete">Search:</label>
-        <input class="form-control" type="search" name="autocomplete" type="text" id="autocomplete" style="width: 150px;"/>
-        <button class="btn btn-secondary" id="go-btn">Go</button>
-      </ul>
+      <label for="autocomplete">Search:</label>
+      <input class="form-control" name="autocomplete" type="text" id="autocomplete" style="width: 150px;"/>
+      <button class="btn btn-secondary" id="go-btn">Go</button>
     </form>
   </div>
   <section class="content">
     <header>
-      {% block header %}{% endblock %}
+      <h2>{% block header %}{% endblock %}</h2>
     </header>
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
