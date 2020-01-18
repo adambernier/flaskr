@@ -1,1 +1,1 @@
-web: waitress-serve --port=$PORT --url-scheme=https app:app
+web: gunicorn app:app --preload
