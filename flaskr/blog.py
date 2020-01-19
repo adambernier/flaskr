@@ -174,6 +174,7 @@ def fts(page=None,search_slug=None):
 def create():
     if request.method == 'POST':
         title = request.form['title']
+        title_slug = slugify(title)
         body = request.form['body']
         tags = request.form['tags']
         tags = tags.split(' ') # expand to allow other delimiters?
@@ -187,10 +188,11 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
-                'INSERT INTO post (title, body, author_id, thank_count)'
-                ' VALUES (%s,%s,%s,%s) RETURNING id;',
-                (title,body,g.user['id'],0)
+            db.execute('''
+                INSERT INTO post (title, title_slug, body, author_id, 
+                                  thank_count)
+                VALUES (%s,%s,%s,%s,%s) RETURNING id;''',
+                (title,title_slug,body,g.user['id'],0)
             )
             post_id = db.fetchone()['id']
             tag_ids = []
@@ -214,12 +216,12 @@ def create():
                 list(zip([post_id]*len(tag_ids),tag_ids))
             )
             # begin elasticsearch
-            suggest = [word for word in title.split()]
+            suggest = [word for word in title_slug.split('-')]
             suggest += [tag_slug for tag_slug in tag_slugs]
             doc = {
                     'post_author': g.user['id'],
                     'post_body': body,
-                    'post_title': [word for word in title.split()],
+                    'post_title': [word for word in title_slug.split('-')],
                     'post_tags': [tag_slug for tag_slug in tag_slugs],
                     'post_timestamp': dt.datetime.now(),
                     'suggest': suggest,
@@ -251,8 +253,8 @@ def create_comment():
 
 def get_post(id, check_author=True):
     get_db().execute("""
-        SELECT p.id, title, body, created, author_id, username, role_id,
-            thank_count, pt.tags, pt.tag_slugs 
+        SELECT p.id, title, title_slug, body, created, author_id, username, 
+            role_id, thank_count, pt.tags, pt.tag_slugs 
          FROM post p JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
             SELECT pt.post_id, string_agg(t.title, ' ') tags, 
@@ -319,6 +321,7 @@ def update(id):
 
     if request.method == 'POST':
         title = request.form['title']
+        title_slug = slugify(title)
         body = request.form['body']
         tags = request.form['tags']
         tags = tags.split(' ') # expand to allow other delimiters?
@@ -333,9 +336,9 @@ def update(id):
         else:
             db = get_db()
             db.execute(
-                'UPDATE post SET title = %s, body = %s'
+                'UPDATE post SET title = %s, title_slug = %s, body = %s'
                 ' WHERE id = %s;',
-                (title, body, id)
+                (title, title_slug, body, id)
             )
             # doesn't cost a lot to just delete any existing tags 
             db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
@@ -360,12 +363,12 @@ def update(id):
                 list(zip([id]*len(tag_ids),tag_ids))
             )
             # begin elasticsearch
-            suggest = [word for word in title.split()]
+            suggest = [word for word in title_slug.split('-')]
             suggest += [tag_slug for tag_slug in tag_slugs]
             doc = {
                     'post_author': g.user['id'],
                     'post_body': body,
-                    'post_title': [word for word in title.split()],
+                    'post_title': [word for word in title_slug.split('-')],
                     'post_tags': [tag_slug for tag_slug in tag_slugs],
                     'post_timestamp': dt.datetime.now(),
                     'suggest': suggest,

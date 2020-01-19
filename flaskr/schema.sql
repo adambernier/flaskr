@@ -26,7 +26,8 @@ CREATE TABLE post (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   body TEXT NOT NULL,
-  thank_count INTEGER NOT NULL,
+  thank_count INTEGER NOT NULL, 
+  title_slug TEXT, 
   FOREIGN KEY (author_id) REFERENCES usr (id)
 );
 
