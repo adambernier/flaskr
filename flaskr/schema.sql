@@ -27,7 +27,7 @@ CREATE TABLE post (
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   thank_count INTEGER NOT NULL, 
-  title_slug TEXT, 
+  title_slug TEXT UNIQUE NOT NULL, 
   FOREIGN KEY (author_id) REFERENCES usr (id)
 );
 

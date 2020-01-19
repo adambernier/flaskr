@@ -47,8 +47,8 @@ def index(page=None):
     count, min_id = result['row_count'], result['min_id']
     offset = (page - 1) * PAGINATION_SIZE 
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, role_id,
-            pt.tags, pt.tag_slugs
+        SELECT p.id, title, title_slug, body, created, author_id, 
+            username, role_id, pt.tags, pt.tag_slugs
          FROM post p
          JOIN (
              SELECT p2.id, ROW_NUMBER() OVER () rownum
@@ -251,7 +251,7 @@ def create_comment():
     
     return redirect(url_for('blog.index'))
 
-def get_post(id, check_author=True):
+def get_post(title_slug, check_author=True):
     get_db().execute("""
         SELECT p.id, title, title_slug, body, created, author_id, username, 
             role_id, thank_count, pt.tags, pt.tag_slugs 
@@ -265,8 +265,8 @@ def get_post(id, check_author=True):
             GROUP BY pt.post_id
          ) pt
          ON pt.post_id = p.id
-         WHERE p.id = %s;""",
-        (id,)
+         WHERE p.title_slug = %s;""",
+        (title_slug,)
     )
     post = get_db().fetchone()
 
@@ -288,15 +288,18 @@ def get_post(id, check_author=True):
 
     return post, comments 
     
-@bp.route('/<int:id>/thank', methods=('POST',))
-def thank(id):
+@bp.route('/<title_slug>/thank', methods=('POST',))
+def thank(title_slug):
     if request.method == "POST":
         db = get_db()
         db.execute('''UPDATE post 
                       SET thank_count = thank_count + 1
-                      WHERE id = %s;''',(id,))
+                      WHERE title_slug = %s;''',(title_slug,))
         if db.rowcount == 1:
-            db.execute('select thank_count from post where id = %s;',(id,))
+            db.execute('''
+                SELECT thank_count 
+                FROM post 
+                WHERE title_slug = %s;''',(title_slug,))
             thank_count = db.fetchone()['thank_count']
             #return json.dumps({'status': 'success', 'thank_count': thank_count})
             return f'''<p id="click-response">Post thanked {thank_count} time(s).</p>'''
@@ -304,9 +307,10 @@ def thank(id):
             return json.dumps({'status': 'record not updated'})
         return redirect(url_for('blog.detail'))
     
-@bp.route('/<int:id>/detail',methods=('GET',))
-def detail(id):
-    post, comments = get_post(id)
+#@bp.route('/<int:id>/detail',methods=('GET',))
+@bp.route('/<title_slug>',methods=('GET',))
+def detail(title_slug):
+    post, comments = get_post(title_slug)
     try:
         thank_count = request.args['thank_count']
     except BadRequestKeyError:
@@ -314,12 +318,15 @@ def detail(id):
     return render_template('blog/detail.html', post=post, 
                            comments=comments, thank_count=thank_count)
     
-@bp.route('/<int:id>/update', methods=('GET', 'POST'))
+#@bp.route('/<int:id>/update', methods=('GET', 'POST'))
+@bp.route('/<title_slug>/update', methods=('GET', 'POST'))
 @login_required
-def update(id):
-    post, comments = get_post(id)
+def update(title_slug):
+    post, comments = get_post(title_slug)
 
     if request.method == 'POST':
+        old_title_slug = title_slug
+        
         title = request.form['title']
         title_slug = slugify(title)
         body = request.form['body']
@@ -337,9 +344,10 @@ def update(id):
             db = get_db()
             db.execute(
                 'UPDATE post SET title = %s, title_slug = %s, body = %s'
-                ' WHERE id = %s;',
-                (title, title_slug, body, id)
+                ' WHERE title_slug = %s RETURNING id;',
+                (title, title_slug, body, old_title_slug)
             )
+            id = db.fetchone()['id']
             # doesn't cost a lot to just delete any existing tags 
             db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
             tag_ids = []
