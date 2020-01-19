@@ -48,7 +48,7 @@ def index(page=None):
     offset = (page - 1) * PAGINATION_SIZE 
     db.execute("""
         SELECT p.id, title, title_slug, body, created, author_id, 
-            username, role_id, pt.tags, pt.tag_slugs
+            username, familyname, role_id, pt.tags, pt.tag_slugs
          FROM post p
          JOIN (
              SELECT p2.id, ROW_NUMBER() OVER () rownum
