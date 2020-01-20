@@ -551,4 +551,3 @@ Please, do not use your email address as your user-name unless you are fully awa
 @bp.route('/robots.txt')
 def robots():
     return render_template('robots.txt')
-
