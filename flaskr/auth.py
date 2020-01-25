@@ -10,7 +10,7 @@ from flask_login import (
     current_user,
     login_required,
     login_user,
-    logout_user,
+    logout_user
 )
 from oauthlib.oauth2 import WebApplicationClient
 from werkzeug.security import check_password_hash, generate_password_hash

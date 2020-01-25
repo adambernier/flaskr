@@ -132,13 +132,7 @@ def fts(page=None,search_slug=None):
     qry = f"""
         SELECT p.id, title, body, created, author_id, username, role_id,
             pt.tags, pt.tag_slugs 
-         FROM post p
-         JOIN (
-             SELECT p2.id, ROW_NUMBER() OVER () rownum
-             FROM post p2
-             WHERE p2.id IN ({placeholders})
-         ) p2
-         ON p2.id = p.id 
+         FROM post p 
          JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
             SELECT pt.post_id, string_agg(t.title, ' ') tags, 
@@ -153,7 +147,7 @@ def fts(page=None,search_slug=None):
          ORDER BY created DESC
          LIMIT %s
          OFFSET %s;"""
-    db.execute(qry,ids+ids+(PAGINATION_SIZE,offset,))
+    db.execute(qry,ids+(PAGINATION_SIZE,offset,))
     posts = db.fetchall()
     try:
         if posts[-1]['id'] == min_id:
