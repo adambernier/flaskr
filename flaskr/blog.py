@@ -29,7 +29,7 @@ def paginate(iterable, page_size):
             break
         yield page
 
-bp = Blueprint('blog', __name__)
+bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 @bp.route('/')
 @bp.route('/',defaults={'page':1})
