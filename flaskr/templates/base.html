@@ -65,7 +65,8 @@
 </head>
 <body>
   <nav>
-    <h1><a class="action" href="{{ url_for('blog.index') }}">This Is A Multi-Tenant Blog</a></h1>
+    <h2><a class="action" href="{{ url_for('index') }}">Home</a></h2>
+    <h2><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h2>
       {% if g.user %}
         <a href="{{ url_for('about.me', id=g.user['id']) }}">{{ g.user['username'] }}</a>
         <a href="{{ url_for('auth.logout') }}">Log Out</a>

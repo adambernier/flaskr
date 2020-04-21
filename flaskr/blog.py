@@ -24,12 +24,12 @@ def paginate(iterable, page_size):
     while True:
         i1, i2 = it.tee(iterable)
         iterable, page = (it.islice(i1, page_size, None),
-                list(it.islice(i2, page_size)))
+                          list(it.islice(i2, page_size)))
         if len(page) == 0:
             break
         yield page
 
-bp = Blueprint('blog', __name__)
+bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 @bp.route('/')
 @bp.route('/',defaults={'page':1})

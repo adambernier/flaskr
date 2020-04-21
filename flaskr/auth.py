@@ -100,8 +100,8 @@ def login():
     # scopes that let you retrieve user's profile from Google
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
-        scope=["openid", "email", "profile"],
+        redirect_uri = request.base_url + "/callback",
+        scope = ["openid", "email", "profile"],
     )
     return redirect(request_uri)
 
@@ -179,7 +179,7 @@ def callback():
             "text": f"User {users_name} just logged on!"})
 
     # Send user back to homepage
-    return redirect(url_for("index"))
+    return redirect(url_for("blog.index"))
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -229,7 +229,7 @@ def logout():
             "subject": "Hello",
             "text": f"A user just logged off!"})
     
-    return redirect(url_for("index"))
+    return redirect(url_for("blog.index"))
 
 class User(UserMixin):
     def __init__(self, id_, username, email, profile_pic, familyname, role_id):
