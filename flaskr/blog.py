@@ -130,8 +130,8 @@ def fts(page=None,search_slug=None):
     count, min_id = result['row_count'], result['min_id']
     
     qry = f"""
-        SELECT p.id, title, body, created, author_id, username, role_id,
-            pt.tags, pt.tag_slugs 
+        SELECT p.id, title, title_slug, body, created, author_id, 
+            username, role_id, pt.tags, pt.tag_slugs 
          FROM post p 
          JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
@@ -415,8 +415,9 @@ def tag(page=None,tag_slug=None):
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, role_id,
-               pt.tags, pt.tag_slugs, pt_addl.addl_tags, pt_addl.addl_tag_slugs
+        SELECT p.id, title, title_slug, body, created, author_id, 
+               username, role_id, pt.tags, pt.tag_slugs, 
+               pt_addl.addl_tags, pt_addl.addl_tag_slugs
          FROM post p
          JOIN (
              SELECT p2.id, ROW_NUMBER() OVER () rownum
