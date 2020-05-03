@@ -25,6 +25,7 @@
   {% endblock %}
 </head>
 <body>
+  <h2><a class="action" href="{{ url_for('index') }}">Home</a></h2>
   <article class="user">
     <header>
       {% if user['profile_pic'] is defined %}
