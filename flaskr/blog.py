@@ -475,9 +475,9 @@ def tag(page=None,tag_slug=None):
 def delete(id):
     db = get_db()
     db.execute('SELECT id FROM post WHERE id = %s;', (id,))
-    post_user = db.fetchone()[0]
+    post_user = db.fetchone()
     # only delete if same user, or if admin 
-    if g.user == post_user or g.user['role_id'] == 2:
+    if g.user['id'] == post_user['id'] or g.user['role_id'] == 2:
         db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
         db.execute('DELETE FROM post_comment where post_id = %s;', (id,))
         db.execute('DELETE FROM post WHERE id = %s;', (id,))
