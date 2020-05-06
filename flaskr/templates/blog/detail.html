@@ -33,6 +33,7 @@
       </div>
       {% if g.user['id'] == post['author_id'] or g.user['role_id'] == 2 %}
         <a class="action" href="{{ url_for('blog.update', title_slug=post['title_slug']) }}" style="float:right;">Edit Post</a>
+        <a class="action" href="{{ url_for('blog.delete', id=post['id']) }}" style="float:right;" onclick="return confirm('Are you sure?');">Delete Post</a>
       {% endif %}
     </header>
     {{ post['body']|markdown }}
