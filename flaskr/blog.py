@@ -319,6 +319,9 @@ def update(title_slug):
     post, comments = get_post(title_slug)
 
     if request.method == 'POST':
+        if g.user['id'] != post_user['id'] and g.user['role_id'] != 2:
+            return redirect(url_for('blog.index'))
+        
         old_title_slug = title_slug
         
         title = request.form['title']
