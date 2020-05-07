@@ -325,9 +325,6 @@ def update(title_slug):
         db.execute('SELECT author_id FROM post WHERE title_slug = %s;', 
                    (title_slug,))
         post_user = db.fetchone()
-        
-        db.execute('SELECT id FROM post WHERE id = %s;', (id,))
-        post_user = db.fetchone()
          
         if g.user['id'] != post_user['author_id'] and g.user['role_id'] != 2:
             return redirect(url_for('blog.index'))
