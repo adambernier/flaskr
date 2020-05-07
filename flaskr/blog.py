@@ -319,6 +319,11 @@ def update(title_slug):
     post, comments = get_post(title_slug)
 
     if request.method == 'POST':
+        db = get_db()
+        db.execute('SELECT id FROM post WHERE id = %s;', (id,))
+        post_user = db.fetchone()
+        
+        # restriction 
         if g.user['id'] != post_user['id'] and g.user['role_id'] != 2:
             return redirect(url_for('blog.index'))
         
@@ -338,7 +343,6 @@ def update(title_slug):
         if error is not None:
             flash(error)
         else:
-            db = get_db()
             db.execute(
                 'UPDATE post SET title = %s, title_slug = %s, body = %s'
                 ' WHERE title_slug = %s RETURNING id;',
