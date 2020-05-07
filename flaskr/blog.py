@@ -320,11 +320,16 @@ def update(title_slug):
 
     if request.method == 'POST':
         db = get_db()
-        db.execute('SELECT id FROM post WHERE id = %s;', (id,))
+        
+        # for restriction get 
+        db.execute('SELECT author_id FROM post WHERE title_slug = %s;', 
+                   (title_slug,))
         post_user = db.fetchone()
         
-        # restriction 
-        if g.user['id'] != post_user['id'] and g.user['role_id'] != 2:
+        db.execute('SELECT id FROM post WHERE id = %s;', (id,))
+        post_user = db.fetchone()
+         
+        if g.user['id'] != post_user['author_id'] and g.user['role_id'] != 2:
             return redirect(url_for('blog.index'))
         
         old_title_slug = title_slug
@@ -481,10 +486,10 @@ def tag(page=None,tag_slug=None):
 @login_required
 def delete(id):
     db = get_db()
-    db.execute('SELECT id FROM post WHERE id = %s;', (id,))
+    db.execute('SELECT author_id FROM post WHERE id = %s;', (id,))
     post_user = db.fetchone()
     # only delete if same user, or if admin 
-    if g.user['id'] == post_user['id'] or g.user['role_id'] == 2:
+    if g.user['id'] == post_user['author_id'] or g.user['role_id'] == 2:
         db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
         db.execute('DELETE FROM post_comment where post_id = %s;', (id,))
         db.execute('DELETE FROM post WHERE id = %s;', (id,))
