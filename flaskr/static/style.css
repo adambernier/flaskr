@@ -61,7 +61,8 @@ h6 {
 }*/
 
 nav {
-  background: lightgray;
+  /*background: lightgray;*/
+  background: gray;
   /*display: flex;*/
   align-items: left;
   padding: 0 0.5rem;
