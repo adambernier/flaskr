@@ -496,7 +496,10 @@ def delete(id):
 @login_required
 def comment_delete(id):
     db = get_db()
-    db.execute('DELETE FROM post_comment where id = %s;', (id,))
+    db.execute('SELECT author_id FROM post_comment WHERE id = %s;', (id,))
+    post_comment_user = db.fetchone()
+    if g.user['id'] == post_comment_user['author_id'] or g.user['role_id'] == 2:
+        db.execute('DELETE FROM post_comment where id = %s;', (id,))
     return redirect(url_for('blog.index'))
 
 @bp.route('/autocomplete', methods=('GET',))
