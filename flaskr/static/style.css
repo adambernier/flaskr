@@ -85,7 +85,7 @@ nav ul {
 
 nav ul li a, nav ul li span, header .action {
   /*display: block;*/
-  color: lightskyblue;
+  /*color: lightskyblue;*/
   padding: 0 0.5rem;
 }
 
