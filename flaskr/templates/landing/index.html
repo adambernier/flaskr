@@ -29,11 +29,18 @@
 <body>
   <nav>
     <h1>Welcome to Mechanical Meat</h1>
-    <h2>A site with some stuff</h2>
   </nav>
-  <h3><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h3>
-  <h3><a class="action" href="{{ url_for('about.me', id=117380961625344217728) }}">About Me</a></h3>
-  <h3><a class="action" href="https://stackoverflow.com/users/42346">Stack Overflow</a></h3>
-  <h3><a class="action" href="https://twitter.com/mechanical_meat">Twitter</a></h3>
+  <section class="content">
+    <header>
+      <h2>A site with some stuff:</h2>
+    </header>
+    <h3><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h3>
+    <h3><a class="action" href="{{ url_for('about.me', id=117380961625344217728) }}">About Me</a></h3>
+    <header>
+      <h3>My presence around the web:</h3>
+    </header>
+    <h3><a class="action" href="https://stackoverflow.com/users/42346">Stack Overflow</a></h3>
+    <h3><a class="action" href="https://twitter.com/mechanical_meat">Twitter</a></h3>
+  </section>
 </body>
 </html>
