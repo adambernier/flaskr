@@ -282,6 +282,38 @@ def get_post(title_slug, check_author=True):
 
     return post, comments 
     
+def get_related(id):
+    """ fetch any related blog posts 
+        ordered by most tags in common descending """
+    get_db().execute("""
+        SELECT p.id, p.title, title_slug, 
+            count(rt.id) related_tag_count, 
+            string_agg(rt.title, ' ') related_tags, 
+            string_agg(rt.slug, ' ') related_tag_slugs 
+         FROM post p 
+            JOIN post_tag rpt ON rpt.post_id = p.id
+            JOIN tag rt ON rt.id = rpt.tag_id 
+         WHERE p.id != %s
+            AND rt.slug IN (
+                SELECT t.slug 
+                FROM 
+                    post_tag pt 
+                    JOIN tag t
+                    ON t.id = pt.tag_id 
+                WHERE 
+                    pt.post_id = %s
+             ) 
+         GROUP BY p.id, p.title, title_slug 
+         ORDER BY count(rt.id) DESC;""",
+        (id,id,)
+    )
+    related = get_db().fetchall()
+
+    if related is None:
+        abort(404, "No posts related to post id: {0}.".format(id))
+    
+    return related
+    
 @bp.route('/<title_slug>/thank', methods=('POST',))
 def thank(title_slug):
     if request.method == "POST":
@@ -305,12 +337,14 @@ def thank(title_slug):
 @bp.route('/<title_slug>',methods=('GET',))
 def detail(title_slug):
     post, comments = get_post(title_slug)
+    related_posts = get_related(post['id'])
     try:
         thank_count = request.args['thank_count']
     except BadRequestKeyError:
         thank_count = post['thank_count']
     return render_template('blog/detail.html', post=post, 
-                           comments=comments, thank_count=thank_count)
+                           comments=comments, related_posts=related_posts, 
+                           thank_count=thank_count)
     
 #@bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @bp.route('/<title_slug>/update', methods=('GET', 'POST'))

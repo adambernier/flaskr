@@ -1,6 +1,9 @@
 import os
-import tempfile
+#import tempfile
+import urllib.parse as urlparse
 
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import pytest
 
 from flaskr import create_app
@@ -18,9 +21,25 @@ with open(os.path.join(os.path.dirname(__file__),"data.sql"),"rb") as f:
 def app():
     """Create and configure a new app instance for each test."""
     # create a temporary file to isolate the database for each test
-    db_fd, db_path = tempfile.mkstemp()
+    #db_fd, db_path = tempfile.mkstemp()
+    url = urlparse.urlparse(os.environ['DATABASE_URL'])
+    dbname = url.path[1:]
+    user = url.username
+    password = url.password
+    host = url.hostname
+    port = url.port
+
+    con = psycopg2.connect(
+                dbname=dbname,
+                user=user,
+                password=password,
+                host=host,
+                port=port
+                )
+    con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    #g.db = con.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     # create the app with common test config
-    app = create_app({"TESTING": True, "DATABASE": db_path})
+    app = create_app({"TESTING": True, "DATABASE": con})
 
     # create the database and load test data
     with app.app_context():
