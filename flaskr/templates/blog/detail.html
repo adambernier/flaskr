@@ -93,10 +93,7 @@
   <div>
     Related posts:
     {% for related_post in related_posts %}
-      <span class="about"><a class="action" href="{{ url_for('blog.detail', title_slug=related_post['title_slug']) }}">{{ related_post['title'] }}</a></span>
-      {% if not loop.last %}
-        ,
-      {% endif %}
+      <ul><a class="action" href="{{ url_for('blog.detail', title_slug=related_post['title_slug']) }}">{{ related_post['title'] }}</a></ul>
     {% endfor %}
   </div>
 
