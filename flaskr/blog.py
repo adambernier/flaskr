@@ -243,7 +243,12 @@ def create_comment():
         (body,post_id,author_id)
     )
     
-    return redirect(url_for('blog.index'))
+    # to get blog post to redirect to
+    db.execute("SELECT title_slug FROM post WHERE id = %s;", (post_id,))
+    post = db.fetchone()
+    
+    redirect_url = request.path.replace('create_comment',post['title_slug'])
+    return redirect(redirect_url)
 
 def get_post(title_slug, check_author=True):
     get_db().execute("""
@@ -275,7 +280,8 @@ def get_post(title_slug, check_author=True):
         FROM post_comment c
             LEFT JOIN usr u 
             ON u.id = c.author_id 
-        WHERE c.post_id = %s;""", 
+        WHERE c.post_id = %s
+        ORDER BY created;""", 
         (post['id'],)
     )
     comments = get_db().fetchall()
@@ -424,7 +430,7 @@ def update(title_slug):
                                           body=doc)
             current_app.es.indices.refresh(index='blog-index')
             # end elasticsearch
-            return redirect(url_for('blog.index'))
+            return redirect(request.path.replace('/update',''))
 
     return render_template('blog/update.html', post=post)
 
