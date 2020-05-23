@@ -22,7 +22,7 @@ def app():
     """Create and configure a new app instance for each test."""
     # create a temporary file to isolate the database for each test
     #db_fd, db_path = tempfile.mkstemp()
-    url = urlparse.urlparse(os.environ['DATABASE_URL'])
+    url = urlparse.urlparse(os.environ['TEST_DATABASE_URL'])
     dbname = url.path[1:]
     user = url.username
     password = url.password
@@ -50,8 +50,8 @@ def app():
     yield app
 
     # close and remove the temporary database
-    os.close(db_fd)
-    os.unlink(db_path)
+    #os.close(db_fd)
+    #os.unlink(db_path)
 
 
 @pytest.fixture
