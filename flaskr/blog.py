@@ -431,7 +431,7 @@ def update(title_slug):
             current_app.es.indices.refresh(index='blog-index')
             # end elasticsearch
             redirect_url = request.path.replace('/update','')
-            redirect_url = request.path.replace(old_title_slug,title_slug)
+            redirect_url = redirect_url.replace(old_title_slug,title_slug)
             return redirect(redirect_url)
 
     return render_template('blog/update.html', post=post)
