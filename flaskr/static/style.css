@@ -152,6 +152,11 @@ ul ul ul {
   font-style: italic;
 }
 
+.user {
+  /*color: slategray;*/
+  padding: 1em 1.5em;
+}
+
 /*.post .body {
   white-space: pre-line;
 }*/
