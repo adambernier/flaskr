@@ -75,7 +75,7 @@
 
                 var $label = $('<label />');
                 $label.html('Enter the code fragment');
-                var $textarea = $('<textarea class="ext-highlight-code form-control" rows="10" />');
+                var $textarea = $('<textarea class="ext-highlight-code form-control" rows="10" style="font-family:Inconsolata,monospace" />');
 
                 $box.append($textGroup.append($label));
                 $box.append($textGroup.append($textarea));
