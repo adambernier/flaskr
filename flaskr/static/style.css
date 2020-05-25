@@ -1,6 +1,6 @@
 pre code {
   font-family: 'Inconsolata', monospace;
-  margin-left: 3em; 
+  /*margin-left: 3em;*/ /* this caused wonkiness in the code insertion */ 
   max-width: 580px;
 }
 
