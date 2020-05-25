@@ -1,6 +1,8 @@
 pre code {
   font-family: 'Inconsolata', monospace;
-  margin-left: 1em; /* this caused wonkiness in the code insertion */ 
+/* this margin makes it look like the first line in the code will be 
+ * indented too much but it works just fine */ 
+  margin-left: 1em;
   max-width: 600px;
 }
 

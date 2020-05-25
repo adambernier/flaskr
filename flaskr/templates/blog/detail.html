@@ -95,7 +95,10 @@
       Related posts: 
     {% endif %}
     {% for related_post in related_posts %}
-      <ul><a class="action" href="{{ url_for('blog.detail', title_slug=related_post['title_slug']) }}">{{ related_post['title'] }}</a></ul>
+      <ul>
+        <a class="action" href="{{ url_for('blog.detail', title_slug=related_post['title_slug']) }}">{{ related_post['title'] }}</a>
+        <span>( {{ related_post['related_tags'] }} )</span>
+      </ul>
     {% endfor %}
   </div>
 
