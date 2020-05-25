@@ -310,7 +310,7 @@ def get_related(id):
                     pt.post_id = %s
              ) 
          GROUP BY p.id, p.title, title_slug 
-         ORDER BY count(rt.id) DESC;""",
+         ORDER BY count(rt.id) DESC, string_agg(rt.title, ' ');""",
         (id,id,)
     )
     related = get_db().fetchall()
