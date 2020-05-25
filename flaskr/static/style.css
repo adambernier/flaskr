@@ -1,7 +1,7 @@
 pre code {
   font-family: 'Inconsolata', monospace;
-  /*margin-left: 3em;*/ /* this caused wonkiness in the code insertion */ 
-  max-width: 580px;
+  margin-left: 1em; /* this caused wonkiness in the code insertion */ 
+  max-width: 600px;
 }
 
 * {
