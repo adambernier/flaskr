@@ -1,5 +1,7 @@
 pre code {
   font-family: 'Inconsolata', monospace;
+  margin-left: 6em; 
+  max-width: 460px;
 }
 
 * {
@@ -153,7 +155,6 @@ ul ul ul {
 }
 
 .user {
-  /*color: slategray;*/
   padding: 1em 1.5em;
 }
 
