@@ -44,7 +44,6 @@ bp = Blueprint('blog', __name__, url_prefix='/blog')
 @bp.route('/',defaults={'page':1})
 @bp.route('/page/<int:page>')
 def index(page=None):
-    print(g.user['role_id'])
     if not page:
         page = 1
     PAGINATION_SIZE = 3
