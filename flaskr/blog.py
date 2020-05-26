@@ -33,7 +33,10 @@ def paginate(iterable, page_size):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not g.user['role_id'] == 2:
+        try:
+            if not g.user['role_id'] == 2:
+                abort(403)
+        except TypeError:
             abort(403)
         return f(*args, **kwargs)
     return decorated_function
