@@ -613,7 +613,8 @@ def admin_dashboard():
                 ON pt.tag_id = t.id
             GROUP BY pt.post_id
          ) pt
-         ON pt.post_id = p.id;"""
+         ON pt.post_id = p.id
+         ORDER BY created DESC;"""
     )
     posts = get_db().fetchall()
     
