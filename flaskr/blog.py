@@ -1,5 +1,6 @@
 import datetime as dt
 import itertools as it
+from functools import wraps
 
 from flask import (
     Blueprint, current_app, flash, g, json, jsonify, redirect, 
@@ -29,12 +30,21 @@ def paginate(iterable, page_size):
             break
         yield page
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not g.user['role_id'] == 2:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 @bp.route('/')
 @bp.route('/',defaults={'page':1})
 @bp.route('/page/<int:page>')
 def index(page=None):
+    print(g.user['role_id'])
     if not page:
         page = 1
     PAGINATION_SIZE = 3
@@ -587,6 +597,27 @@ def autocomplete():
         pass 
     
     return jsonify(matching_results=matching_results)
+
+@bp.route('/admin_dashboard')
+@admin_required 
+def admin_dashboard():
+    get_db().execute("""
+        SELECT p.id, title, title_slug, body, created, author_id, username, 
+            role_id, thank_count, pt.tags, pt.tag_slugs 
+         FROM post p JOIN usr u ON p.author_id = u.id
+         LEFT JOIN (
+            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                string_agg(t.slug, ' ') tag_slugs 
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            GROUP BY pt.post_id
+         ) pt
+         ON pt.post_id = p.id;"""
+    )
+    posts = get_db().fetchall()
+    
+    return render_template('blog/admin_dashboard.html',posts=posts)
 
 @bp.route('/privacy_policy')
 def privacy_policy():
