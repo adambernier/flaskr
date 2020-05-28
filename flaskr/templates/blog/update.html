@@ -2,14 +2,13 @@
 
 {% block head %}
   {{ super() }}
-  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.15/dist/summernote-bs4.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
   <script src="{{ url_for('static', filename='summernote-ext-highlight.js') }}"></script>
   <h2>{% block title %}Edit "{{ post['title'] }}"{% endblock %}</h2>
 {% endblock %}
 
 {% block content %}
-
     <form method="post">
       <div class='form-group'>
         <label for='title'>Title</label>
@@ -20,25 +19,27 @@
         <label for='summernote'>Content</label>
         <textarea id="summernote" name="body" class='form-control'>{{ request.form['body'] or post['body'] }}</textarea>
         <script>
-        $('#summernote').summernote({
-          placeholder: 'Enter some content here.',
-          tabsize: 2,
-          height: 200,
-          prettifyHtml:false,
-          fontNames: ['Arial', 'Impact', 'Tahoma', 'Verdana', 'Roboto'],
-          fontNamesIgnoreCheck: ['Arial', 'Impact', 'Tahoma', 'Verdana', 'Roboto'],
-          toolbar:[
-            ['style', ['style']],
-            ['font', ['bold', 'underline', 'clear']],
-            ['fontname', ['fontname']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'video']],
-            ['view', ['fullscreen', 'codeview', 'help']],
-            ['highlight', ['highlight']],
-            ],
-            lang:'en-US'
+        $(document).ready(function() {
+            $('#summernote').summernote({
+              placeholder: 'Enter some content here.',
+              tabsize: 2,
+              height: 200,
+              prettifyHtml:false,
+              fontNames: ['Arial', 'Impact', 'Tahoma', 'Verdana', 'Roboto'],
+              fontNamesIgnoreCheck: ['Arial', 'Impact', 'Tahoma', 'Verdana', 'Roboto'],
+              toolbar:[
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+                ['highlight', ['highlight']],
+                ],
+                lang:'en-US'
+            });
         });
         </script>
       </div>
