@@ -1,5 +1,6 @@
 import datetime as dt
 import itertools as it
+from functools import wraps
 
 from flask import (
     Blueprint, current_app, flash, g, json, jsonify, redirect, 
@@ -28,6 +29,17 @@ def paginate(iterable, page_size):
         if len(page) == 0:
             break
         yield page
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        try:
+            if not g.user['role_id'] == 2:
+                abort(403)
+        except TypeError:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
 
 bp = Blueprint('blog', __name__, url_prefix='/blog')
 
@@ -130,8 +142,8 @@ def fts(page=None,search_slug=None):
     count, min_id = result['row_count'], result['min_id']
     
     qry = f"""
-        SELECT p.id, title, body, created, author_id, username, role_id,
-            pt.tags, pt.tag_slugs 
+        SELECT p.id, title, title_slug, body, created, author_id, 
+            username, role_id, pt.tags, pt.tag_slugs 
          FROM post p 
          JOIN usr u ON p.author_id = u.id
          LEFT JOIN (
@@ -243,7 +255,12 @@ def create_comment():
         (body,post_id,author_id)
     )
     
-    return redirect(url_for('blog.index'))
+    # to get blog post to redirect to
+    db.execute("SELECT title_slug FROM post WHERE id = %s;", (post_id,))
+    post = db.fetchone()
+    
+    redirect_url = request.path.replace('create_comment',post['title_slug'])
+    return redirect(redirect_url)
 
 def get_post(title_slug, check_author=True):
     get_db().execute("""
@@ -275,12 +292,45 @@ def get_post(title_slug, check_author=True):
         FROM post_comment c
             LEFT JOIN usr u 
             ON u.id = c.author_id 
-        WHERE c.post_id = %s;""", 
+        WHERE c.post_id = %s
+        ORDER BY created;""", 
         (post['id'],)
     )
     comments = get_db().fetchall()
 
     return post, comments 
+    
+def get_related(id):
+    """ fetch any related blog posts 
+        ordered by most tags in common descending """
+    get_db().execute("""
+        SELECT p.id, p.title, title_slug, 
+            count(rt.id) related_tag_count, 
+            string_agg(rt.title, ' ') related_tags, 
+            string_agg(rt.slug, ' ') related_tag_slugs 
+         FROM post p 
+            JOIN post_tag rpt ON rpt.post_id = p.id
+            JOIN tag rt ON rt.id = rpt.tag_id 
+         WHERE p.id != %s
+            AND rt.slug IN (
+                SELECT t.slug 
+                FROM 
+                    post_tag pt 
+                    JOIN tag t
+                    ON t.id = pt.tag_id 
+                WHERE 
+                    pt.post_id = %s
+             ) 
+         GROUP BY p.id, p.title, title_slug 
+         ORDER BY count(rt.id) DESC, string_agg(rt.title, ' ');""",
+        (id,id,)
+    )
+    related = get_db().fetchall()
+
+    if related is None:
+        abort(404, "No posts related to post id: {0}.".format(id))
+    
+    return related
     
 @bp.route('/<title_slug>/thank', methods=('POST',))
 def thank(title_slug):
@@ -305,12 +355,14 @@ def thank(title_slug):
 @bp.route('/<title_slug>',methods=('GET',))
 def detail(title_slug):
     post, comments = get_post(title_slug)
+    related_posts = get_related(post['id'])
     try:
         thank_count = request.args['thank_count']
     except BadRequestKeyError:
         thank_count = post['thank_count']
     return render_template('blog/detail.html', post=post, 
-                           comments=comments, thank_count=thank_count)
+                           comments=comments, related_posts=related_posts, 
+                           thank_count=thank_count)
     
 #@bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @bp.route('/<title_slug>/update', methods=('GET', 'POST'))
@@ -319,6 +371,16 @@ def update(title_slug):
     post, comments = get_post(title_slug)
 
     if request.method == 'POST':
+        db = get_db()
+        
+        # for restriction get 
+        db.execute('SELECT author_id FROM post WHERE title_slug = %s;', 
+                   (title_slug,))
+        post_user = db.fetchone()
+         
+        if g.user['id'] != post_user['author_id'] and g.user['role_id'] != 2:
+            return redirect(url_for('blog.index'))
+        
         old_title_slug = title_slug
         
         title = request.form['title']
@@ -335,7 +397,6 @@ def update(title_slug):
         if error is not None:
             flash(error)
         else:
-            db = get_db()
             db.execute(
                 'UPDATE post SET title = %s, title_slug = %s, body = %s'
                 ' WHERE title_slug = %s RETURNING id;',
@@ -381,7 +442,9 @@ def update(title_slug):
                                           body=doc)
             current_app.es.indices.refresh(index='blog-index')
             # end elasticsearch
-            return redirect(url_for('blog.index'))
+            redirect_url = request.path.replace('/update','')
+            redirect_url = redirect_url.replace(old_title_slug,title_slug)
+            return redirect(redirect_url)
 
     return render_template('blog/update.html', post=post)
 
@@ -415,8 +478,9 @@ def tag(page=None,tag_slug=None):
     result = db.fetchone()
     count, min_id = result['row_count'], result['min_id']
     db.execute("""
-        SELECT p.id, title, body, created, author_id, username, role_id,
-               pt.tags, pt.tag_slugs, pt_addl.addl_tags, pt_addl.addl_tag_slugs
+        SELECT p.id, title, title_slug, body, created, author_id, 
+               username, role_id, pt.tags, pt.tag_slugs, 
+               pt_addl.addl_tags, pt_addl.addl_tag_slugs
          FROM post p
          JOIN (
              SELECT p2.id, ROW_NUMBER() OVER () rownum
@@ -473,16 +537,23 @@ def tag(page=None,tag_slug=None):
 @login_required
 def delete(id):
     db = get_db()
-    db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
-    db.execute('DELETE FROM post_comment where post_id = %s;', (id,))
-    db.execute('DELETE FROM post WHERE id = %s;', (id,))
+    db.execute('SELECT author_id FROM post WHERE id = %s;', (id,))
+    post_user = db.fetchone()
+    # only delete if same user, or if admin 
+    if g.user['id'] == post_user['author_id'] or g.user['role_id'] == 2:
+        db.execute('DELETE FROM post_tag where post_id = %s;', (id,))
+        db.execute('DELETE FROM post_comment where post_id = %s;', (id,))
+        db.execute('DELETE FROM post WHERE id = %s;', (id,))
     return redirect(url_for('blog.index'))
     
 @bp.route('/<int:id>/comment_delete', methods=('POST',))
 @login_required
 def comment_delete(id):
     db = get_db()
-    db.execute('DELETE FROM post_comment where id = %s;', (id,))
+    db.execute('SELECT author_id FROM post_comment WHERE id = %s;', (id,))
+    post_comment_user = db.fetchone()
+    if g.user['id'] == post_comment_user['author_id'] or g.user['role_id'] == 2:
+        db.execute('DELETE FROM post_comment where id = %s;', (id,))
     return redirect(url_for('blog.index'))
 
 @bp.route('/autocomplete', methods=('GET',))
@@ -528,6 +599,28 @@ def autocomplete():
         pass 
     
     return jsonify(matching_results=matching_results)
+
+@bp.route('/admin_dashboard')
+@admin_required 
+def admin_dashboard():
+    get_db().execute("""
+        SELECT p.id, title, title_slug, body, created, author_id, username, 
+            role_id, thank_count, pt.tags, pt.tag_slugs 
+         FROM post p JOIN usr u ON p.author_id = u.id
+         LEFT JOIN (
+            SELECT pt.post_id, string_agg(t.title, ' ') tags, 
+                string_agg(t.slug, ' ') tag_slugs 
+            FROM tag t
+                JOIN post_tag pt
+                ON pt.tag_id = t.id
+            GROUP BY pt.post_id
+         ) pt
+         ON pt.post_id = p.id
+         ORDER BY created DESC;"""
+    )
+    posts = get_db().fetchall()
+    
+    return render_template('blog/admin_dashboard.html',posts=posts)
 
 @bp.route('/privacy_policy')
 def privacy_policy():

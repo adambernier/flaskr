@@ -17,16 +17,13 @@
       gtag('config', 'UA-16291963-4');
     </script>
     
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
-    <link rel="stylesheet" href="https://d2eq5w2spaz17a.cloudfront.net/">
-    
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <!--<link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="stylesheet">-->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     
     <!--<link rel="stylesheet" href="{{ url_for('static', filename='zenburn.css') }}">-->
     <link rel="stylesheet" href="https://d2r2pk0zlf4erd.cloudfront.net">
@@ -60,13 +57,20 @@
         });
     });
     </script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!--<link rel="stylesheet" href="https://d2eq5w2spaz17a.cloudfront.net/">-->
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata|Spectral">
+    
     <title>{% block title %}Mechanical Meat{% endblock %}</title>
   {% endblock %}
 </head>
 <body>
+  <img src="{{ url_for('static', filename='1044.png') }}" alt="header_pic">
   <nav>
     <h2><a class="action" href="{{ url_for('index') }}">Home</a></h2>
-    <h2><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h2>
+    <!--<h2><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h2>-->
       {% if g.user %}
         <a href="{{ url_for('about.me', id=g.user['id']) }}">{{ g.user['username'] }}</a>
         <a href="{{ url_for('auth.logout') }}">Log Out</a>
@@ -87,9 +91,9 @@
     </form>
   </div>
   <section class="content">
-    <header>
+    <!--<header>
       <h2>{% block header %}Blog post titles (3 per page){% endblock %}</h2>
-    </header>
+    </header>-->
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
     {% endfor %}

@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block content %}
-  <a class="action" href="{{ url_for('blog.index') }}">Back to home</a>
+  <a class="action" href="{{ url_for('blog.index') }}">Back to blog home</a>
   <article class="post">
     <header>
       <div>
@@ -47,6 +47,12 @@
     <p></p>
     <button class="btn btn-secondary" id="click-btn" data-postid="{{ post['id'] }}">Say thanks!</button>
     <p id="click-response">Post thanked {{ thank_count }} time(s).</p>
+    
+    {% if g.user['id'] == post['author_id'] or g.user['role_id'] == 2 %}
+      <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
+        <input class="btn btn-danger" type="submit" value="Delete Post" onclick="return confirm('Are you sure?');">
+      </form>
+    {% endif %}
   </article>
   
   {% if comments %}
@@ -56,7 +62,7 @@
     {% for comment in comments %}
       <div class="about">{{ comment['username'] }} wrote on {{ comment['created'].strftime('%Y-%m-%d') }}:</div>
       {{ comment['body']|markdown }}
-      {% if comment['author_id'] == g.user['id'] %}
+      {% if comment['author_id'] == g.user['id'] or g.user['role_id'] == 2 %}
         <form action="{{ url_for('blog.comment_delete', id=comment['id']) }}" method="post">
           <input class="btn btn-danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
         </form>
@@ -83,5 +89,17 @@
     </div>
   </form>
 {% endif %}
+
+  <div>
+    {% if related_posts %}
+      Related posts: 
+    {% endif %}
+    {% for related_post in related_posts %}
+      <ul>
+        <a class="action" href="{{ url_for('blog.detail', title_slug=related_post['title_slug']) }}">{{ related_post['title'] }}</a>
+        <span>( {{ related_post['related_tags'] }} )</span>
+      </ul>
+    {% endfor %}
+  </div>
 
 {% endblock %}
