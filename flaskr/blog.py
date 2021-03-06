@@ -49,7 +49,7 @@ bp = Blueprint('blog', __name__, url_prefix='/blog')
 def index(page=None):
     if not page:
         page = 1
-    PAGINATION_SIZE = current_app.config['PAGINATION_SIZE']
+    PAGINATION_SIZE = 3
     db = get_db()
     db.execute("""
         SELECT count(p.id) row_count, min(p.id) min_id
@@ -105,7 +105,7 @@ def index(page=None):
 def fts(page=None,search_slug=None):
     if not page:
         page = 1
-    PAGINATION_SIZE = current_app.config['PAGINATION_SIZE']
+    PAGINATION_SIZE = 3
     search = request.args.get('autocomplete')
     offset = (page - 1) * PAGINATION_SIZE 
     if not search:
@@ -453,7 +453,7 @@ def update(title_slug):
 def tag(page=None,tag_slug=None):
     if not page:
         page = 1
-    PAGINATION_SIZE = current_app.config['PAGINATION_SIZE']
+    PAGINATION_SIZE = 3
     offset = (page - 1) * PAGINATION_SIZE 
     
     if not tag_slug:
