@@ -129,6 +129,13 @@ ul ul ul {
   /*margin: 0.5rem 0 0.25rem 0;*/
 }
 
+.shop {
+  margin: 20px;
+  min-width: 720px;
+  position: absolute;
+  width: 100%;
+}
+
 .flash {
   margin: 1em 0;
   padding: 1em;
