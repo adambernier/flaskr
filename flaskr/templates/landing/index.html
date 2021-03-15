@@ -62,6 +62,7 @@
     $(document).on('click', 'a', function(evt) {
         if(evt.target.hash !== '') {
             $('html, body').animate({ scrollTop: $( evt.target.hash ).offset().top }, 1000);
+            $('html, body').animate({ scrollLeft: $( evt.target.hash ).offset().left }, 800);
             evt.target.hash = ''; // this was necessary because URL/#!/shop was being added 
             return false;
         }
