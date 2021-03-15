@@ -37,7 +37,7 @@
     </header>
     <h3><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h3>
     <h3><a class="action" href="{{ url_for('about.me', id=117380961625344217728) }}">About Me</a></h3>
-    <h3><a class="action" href="{{ url_for('landing.index',_anchor='shop') }}">Shop with items featuring my art</a></h3>
+    <h3><a class="#" href="{{ url_for('landing.index',_anchor='') }}">Shop with items featuring my art</a></h3>
     <header>
       <h3>My presence around the web:</h3>
     </header>
@@ -48,11 +48,12 @@
   <script>
     var spread_shop_config = {
       prefix: 'https://shop.spreadshirt.com',
+      locale: 'us_US',
       shopName: 'mechanical-meat',
-      //startToken: '#!/?q=P22',
-      usePushState: true,
-      updateMetadata: false,
+      usePushState: false,
+      updateMetadata: true,
       baseId: 'shop',
+      startToken: '',
     };
   </script>
   <script type="text/javascript" src="https://shop.spreadshirt.com/js/shopclient.nocache.js"></script>
