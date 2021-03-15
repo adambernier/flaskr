@@ -17,6 +17,8 @@
       gtag('config', 'UA-16291963-4');
     </script>
     
+    <!-- Bootstrap's JavaScript requires jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     
@@ -37,7 +39,7 @@
     </header>
     <h3><a class="action" href="{{ url_for('blog.index') }}">A Multi-Tenant Blog</a></h3>
     <h3><a class="action" href="{{ url_for('about.me', id=117380961625344217728) }}">About Me</a></h3>
-    <h3><a class="#" href="{{ url_for('landing.index',_anchor='') }}">Shop with items featuring my art</a></h3>
+    <h3><a class="#" href="{{ url_for('landing.index',_anchor='shop') }}">Shop with items featuring my art</a></h3>
     <header>
       <h3>My presence around the web:</h3>
     </header>
@@ -48,7 +50,6 @@
   <script>
     var spread_shop_config = {
       prefix: 'https://shop.spreadshirt.com',
-      locale: 'us_US',
       shopName: 'mechanical-meat',
       usePushState: false,
       updateMetadata: true,
@@ -57,5 +58,14 @@
     };
   </script>
   <script type="text/javascript" src="https://shop.spreadshirt.com/js/shopclient.nocache.js"></script>
+  <script type='text/javascript'>
+    $(document).on('click', 'a', function(evt) {
+        if(evt.target.hash !== '') {
+            $('html, body').animate({ scrollTop: $( evt.target.hash ).offset().top }, 1000);
+            evt.target.hash = ''; // this was necessary because URL/#!/shop was being added 
+            return false;
+        }
+    });
+  </script>
 </body>
 </html>
