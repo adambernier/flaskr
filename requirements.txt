@@ -15,4 +15,4 @@ pyOpenSSL==19.1.0
 requests==2.23.0
 oauthlib==3.1.0
 Flask-Login==0.4.1
-elasticsearch==7.1.0
+elasticsearch==8.5.0
